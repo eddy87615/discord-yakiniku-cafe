@@ -1,0 +1,330 @@
+{
+  "users": {
+    "836447451324874772": {
+      "money": 555,
+      "points": 2,
+      "lastDaily": 1750131896823,
+      "totalEarned": 990,
+      "totalSpent": 435,
+      "purchaseHistory": [
+        {
+          "item": "美式咖啡",
+          "price": 60,
+          "time": 1750128890781
+        },
+        {
+          "item": "美式咖啡",
+          "price": 60,
+          "time": 1750130726327
+        },
+        {
+          "item": "請客: 可頌 (給 RCrusade)",
+          "price": 60,
+          "time": 1750131254322
+        },
+        {
+          "item": "請客: 起司蛋糕 (給 碳烤燒肉🔥)",
+          "price": 100,
+          "time": 1750131446952
+        },
+        {
+          "item": "請客: 拿鐵咖啡 (給 How)",
+          "price": 80,
+          "time": 1750132957776
+        },
+        {
+          "item": "請客: 珍珠奶茶 (給 碳烤燒肉🔥)",
+          "price": 75,
+          "time": 1750133345384
+        }
+      ],
+      "joinTime": 1750128762608,
+      "lastVoiceTime": 0
+    },
+    "590477269429125120": {
+      "money": 165,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 165,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750128792835,
+      "lastVoiceTime": 0
+    },
+    "437250059541807124": {
+      "money": 20,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 20,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750128895529,
+      "lastVoiceTime": 0
+    },
+    "493694033202511883": {
+      "money": 155,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 155,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750128921063,
+      "lastVoiceTime": 0
+    },
+    "536356100593942550": {
+      "money": 5,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 5,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750128938407,
+      "lastVoiceTime": 0
+    },
+    "1022888696443326528": {
+      "money": 35,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 35,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750129019315,
+      "lastVoiceTime": 0
+    },
+    "152116849142661120": {
+      "money": 30,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 30,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750129183882,
+      "lastVoiceTime": 0
+    },
+    "325892529637818370": {
+      "money": 10,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 10,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750130068462,
+      "lastVoiceTime": 0
+    },
+    "118991673945489408": {
+      "money": 10,
+      "points": 1,
+      "lastDaily": 0,
+      "totalEarned": 10,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 可頌 (來自 健太)",
+          "price": 0,
+          "time": 1750131254322
+        }
+      ],
+      "joinTime": 1750130844421,
+      "lastVoiceTime": 0
+    },
+    "557466330744356886": {
+      "money": 30,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 30,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750130846511,
+      "lastVoiceTime": 0
+    },
+    "369890059152785409": {
+      "money": 5,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 5,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750131044174,
+      "lastVoiceTime": 0
+    },
+    "336427905896808450": {
+      "money": 15,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 15,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750131317003,
+      "lastVoiceTime": 0
+    },
+    "330755940594876429": {
+      "money": 5,
+      "points": 2,
+      "lastDaily": 0,
+      "totalEarned": 5,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 起司蛋糕 (來自 健太)",
+          "price": 0,
+          "time": 1750131446952
+        },
+        {
+          "item": "被請客: 珍珠奶茶 (來自 健太)",
+          "price": 0,
+          "time": 1750133345384
+        }
+      ],
+      "joinTime": 1750131446951,
+      "lastVoiceTime": 0
+    },
+    "747852848141697075": {
+      "money": 15,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 15,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750131640140,
+      "lastVoiceTime": 0
+    },
+    "832977253696667728": {
+      "money": 10,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 10,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750132198847,
+      "lastVoiceTime": 0
+    },
+    "368757119111135234": {
+      "money": 5,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 5,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750132817982,
+      "lastVoiceTime": 0
+    },
+    "571712084459651093": {
+      "money": 0,
+      "points": 1,
+      "lastDaily": 0,
+      "totalEarned": 0,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 拿鐵咖啡 (來自 健太)",
+          "price": 0,
+          "time": 1750132957776
+        }
+      ],
+      "joinTime": 1750132957775,
+      "lastVoiceTime": 0
+    },
+    "528442516584792074": {
+      "money": 10,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 10,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750133005811,
+      "lastVoiceTime": 0
+    }
+  },
+  "menu": [
+    {
+      "id": "americano",
+      "name": "美式咖啡",
+      "price": 50,
+      "emoji": "☕",
+      "image": "☕"
+    },
+    {
+      "id": "latte",
+      "name": "拿鐵咖啡",
+      "price": 80,
+      "emoji": "🥛",
+      "image": "🥛"
+    },
+    {
+      "id": "cappuccino",
+      "name": "卡布奇諾",
+      "price": 85,
+      "emoji": "☕",
+      "image": "☕"
+    },
+    {
+      "id": "mocha",
+      "name": "摩卡咖啡",
+      "price": 90,
+      "emoji": "☕",
+      "image": "☕"
+    },
+    {
+      "id": "tapioca",
+      "name": "珍珠奶茶",
+      "price": 75,
+      "emoji": "🧋",
+      "image": "🧋"
+    },
+    {
+      "id": "tiramisu",
+      "name": "提拉米蘇",
+      "price": 120,
+      "emoji": "🍰",
+      "image": "🍰"
+    },
+    {
+      "id": "cheesecake",
+      "name": "起司蛋糕",
+      "price": 100,
+      "emoji": "🧀",
+      "image": "🧀"
+    },
+    {
+      "id": "brownie",
+      "name": "布朗尼",
+      "price": 80,
+      "emoji": "🍫",
+      "image": "🍫"
+    },
+    {
+      "id": "croissant",
+      "name": "可頌",
+      "price": 60,
+      "emoji": "🥐",
+      "image": "🥐"
+    },
+    {
+      "id": "cookie",
+      "name": "餅乾",
+      "price": 50,
+      "emoji": "🍪",
+      "image": "🍪"
+    }
+  ],
+  "shopAccount": 315,
+  "settings": {
+    "managerRoleId": "1384346151431438529",
+    "menuChannelId": "1384338783503257753",
+    "messageReward": 5,
+    "voiceReward": 10,
+    "dailyReward": 100,
+    "pointsPerPurchase": 1,
+    "pointsToReward": 10
+  },
+  "dailyStats": {
+    "date": "Tue Jun 17 2025",
+    "sales": 555,
+    "customers": [
+      "836447451324874772",
+      "118991673945489408",
+      "330755940594876429",
+      "571712084459651093"
+    ]
+  }
+}
