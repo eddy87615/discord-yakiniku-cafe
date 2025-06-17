@@ -946,7 +946,7 @@ async function handleTreatCommand(interaction) {
   const embed = new EmbedBuilder()
     .setTitle("🎁 請客成功！")
     .setDescription(
-      `**${interaction.user.displayName}** 請 **${friend.displayName}** 喝了一份 ${item.emoji} **${item.name}**！`
+      `**${interaction.user.displayName}** 請 **${friend.displayName}** 了一份 ${item.emoji} **${item.name}**！`
     )
     .setColor("#FFD700")
     .addFields(
