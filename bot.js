@@ -905,7 +905,7 @@ async function handleGayIndexCommand(interaction) {
     color = "#FF1493";
     emoji = "😊";
   } else if (gayIndex <= 50) {
-    message = "雙就雙不要說自己是值得了！！！";
+    message = "雙就雙不要說自己是直的了！！！";
     color = "#FF6347";
     emoji = "😉";
   } else if (gayIndex <= 60) {
