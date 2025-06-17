@@ -672,6 +672,16 @@ async function registerSlashCommands() {
               .setRequired(true)
           )
       ),
+
+    new SlashCommandBuilder()
+      .setName("同性戀指數")
+      .setDescription("測試同性戀指數（純娛樂）")
+      .addUserOption((option) =>
+        option
+          .setName("成員")
+          .setDescription("要測試的成員（不填則測試自己）")
+          .setRequired(false)
+      ),
   ];
 
   try {
@@ -835,6 +845,9 @@ async function handleSlashCommand(interaction) {
       case "設定":
         await handleSettingsCommand(interaction);
         break;
+      case "同性戀指數":
+        await handleGayIndexCommand(interaction);
+        break;
     }
   } catch (error) {
     console.error("處理指令時發生錯誤:", error);
@@ -845,6 +858,167 @@ async function handleSlashCommand(interaction) {
       });
     }
   }
+}
+
+// 添加處理函數（放在其他 handle 函數附近）：
+
+async function handleGayIndexCommand(interaction) {
+  const targetUser = interaction.options.getUser("成員") || interaction.user;
+  const isself = targetUser.id === interaction.user.id;
+
+  // 基於用戶ID生成固定的隨機數（每個用戶每天的結果都一樣）
+  const today = new Date().toDateString();
+  const seed = `${targetUser.id}_${today}`;
+
+  // 簡單的種子隨機數生成器
+  function seededRandom(seed) {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      const char = seed.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // 轉換為32位整數
+    }
+    return Math.abs(hash) % 101; // 0-100
+  }
+
+  const gayIndex = seededRandom(seed);
+
+  // 根據指數生成不同的留言
+  let message = "";
+  let color = "#FF69B4"; // 預設粉色
+  let emoji = "🏳️‍🌈";
+
+  if (gayIndex <= 10) {
+    message = "沒有很gay呢好可惜";
+    color = "#87CEEB";
+    emoji = "😔";
+  } else if (gayIndex <= 20) {
+    message = "有一點gay味囉！";
+    color = "#DDA0DD";
+    emoji = "😏";
+  } else if (gayIndex <= 30) {
+    message = "還不正視自己嗎？？？？";
+    color = "#FF69B4";
+    emoji = "🤔";
+  } else if (gayIndex <= 40) {
+    message = "開始有感覺了呢～";
+    color = "#FF1493";
+    emoji = "😊";
+  } else if (gayIndex <= 50) {
+    message = "雙就雙不要說自己是值得了！！！";
+    color = "#FF6347";
+    emoji = "😉";
+  } else if (gayIndex <= 60) {
+    message = "已經超過一半了耶！";
+    color = "#FF4500";
+    emoji = "😘";
+  } else if (gayIndex <= 70) {
+    message = "很有gay的天份呢！";
+    color = "#FF0000";
+    emoji = "🥰";
+  } else if (gayIndex <= 80) {
+    message = "非常gay！棒棒的！";
+    color = "#DC143C";
+    emoji = "😍";
+  } else if (gayIndex <= 90) {
+    message = "超級gay！已經覺醒了！";
+    color = "#B22222";
+    emoji = "🤩";
+  } else {
+    message = "100%純天然有機Gay！恭喜！";
+    color = "#8B0000";
+    emoji = "🎉";
+  }
+
+  // 特殊情況的額外訊息
+  const specialMessages = [
+    "（純屬娛樂，也可以當真）",
+    "（或許不科學測試結果）",
+    "（今日限定結果）",
+    "（AI智缺分析）",
+    "（基於小數據分析）",
+    "（健太的老公們身份組招募中）",
+    "（健太專業認證）",
+  ];
+
+  const randomSpecialMessage =
+    specialMessages[Math.floor(Math.random() * specialMessages.length)];
+
+  const embed = new EmbedBuilder()
+    .setTitle(`${emoji} 同性戀指數測試結果`)
+    .setDescription(`**${targetUser.displayName}** 的今日同性戀指數`)
+    .setColor(color)
+    .addFields(
+      {
+        name: "🏳️‍🌈 同性戀指數",
+        value: `**${gayIndex}%**`,
+        inline: true,
+      },
+      {
+        name: "💬 評語",
+        value: message,
+        inline: true,
+      },
+      {
+        name: "📊 等級",
+        value:
+          gayIndex <= 20
+            ? "新手"
+            : gayIndex <= 40
+            ? "進階"
+            : gayIndex <= 60
+            ? "專家"
+            : gayIndex <= 80
+            ? "大師"
+            : "傳說",
+        inline: true,
+      }
+    )
+    .setFooter({
+      text: `${randomSpecialMessage} • 結果每日更新`,
+    })
+    .setTimestamp();
+
+  // 如果是100%，添加特殊效果
+  if (gayIndex === 100) {
+    embed.addFields({
+      name: "🎊 特殊成就解鎖",
+      value: "🏆 **彩虹大師** - 獲得咖啡廳VIP折扣！",
+      inline: false,
+    });
+  }
+
+  // 如果是自己測試，用不同的語氣
+  if (isself) {
+    embed.setDescription(`你的今日同性戀指數測試結果 ${emoji}`);
+  }
+
+  await interaction.reply({ embeds: [embed] });
+
+  // 如果指數很高，發送額外的慶祝訊息
+  if (gayIndex >= 80) {
+    setTimeout(async () => {
+      try {
+        const celebrations = [
+          "🌈 恭喜高分！",
+          "🎉 Gay度爆表！",
+          "🏳️‍🌈 彩虹認證！",
+          "✨ 閃閃發光！",
+          "🦄 獨角獸等級！",
+        ];
+
+        const randomCelebration =
+          celebrations[Math.floor(Math.random() * celebrations.length)];
+        await interaction.followUp(randomCelebration);
+      } catch (error) {
+        console.log("發送慶祝訊息失敗:", error);
+      }
+    }, 2000);
+  }
+
+  console.log(
+    `🏳️‍🌈 同性戀指數測試: ${interaction.user.tag} 測試了 ${targetUser.tag}, 結果: ${gayIndex}%`
+  );
 }
 
 // 處理自動完成
