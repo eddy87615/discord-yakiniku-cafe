@@ -154,6 +154,62 @@ class CoffeeShopManager {
             pointsToReward: data.settings?.pointsToReward || 10,
             ...data.settings,
           },
+          rewardShop: data.rewardShop || [
+            {
+              id: "cash100",
+              name: "現金獎勵",
+              description: "獲得100元現金",
+              cost: 10,
+              type: "money",
+              value: 100,
+              emoji: "💰",
+            },
+            {
+              id: "cash200",
+              name: "現金大獎",
+              description: "獲得200元現金",
+              cost: 20,
+              type: "money",
+              value: 200,
+              emoji: "💎",
+            },
+            {
+              id: "double_points",
+              name: "雙倍集點卡",
+              description: "下次購買獲得雙倍集點",
+              cost: 15,
+              type: "buff",
+              value: "double_points",
+              emoji: "✨",
+            },
+            {
+              id: "free_drink",
+              name: "免費飲料券",
+              description: "免費獲得一杯隨機飲料",
+              cost: 8,
+              type: "item",
+              value: "random_drink",
+              emoji: "🎫",
+            },
+            {
+              id: "vip_title",
+              name: "VIP會員稱號",
+              description: "獲得特殊身分標記",
+              cost: 50,
+              type: "title",
+              value: "VIP會員",
+              emoji: "👑",
+            },
+            {
+              id: "lucky_box",
+              name: "幸運寶箱",
+              description: "隨機獲得50-150元",
+              cost: 12,
+              type: "lucky",
+              value: [50, 150],
+              emoji: "📦",
+            },
+          ],
           dailyStats: data.dailyStats || {
             date: new Date().toDateString(),
             sales: 0,
@@ -172,6 +228,9 @@ class CoffeeShopManager {
         }
 
         console.log(`📋 從檔案載入菜單，共 ${this.data.menu.length} 個項目`);
+        console.log(
+          `🎁 載入兌換商店，共 ${this.data.rewardShop.length} 個獎勵`
+        );
       } else {
         console.log("📝 首次啟動，創建新的資料檔案");
         this.initializeDefaultData();
@@ -196,6 +255,62 @@ class CoffeeShopManager {
         pointsPerPurchase: 1,
         pointsToReward: 10,
       },
+      rewardShop: [
+        {
+          id: "cash100",
+          name: "現金獎勵",
+          description: "獲得100元現金",
+          cost: 10,
+          type: "money",
+          value: 100,
+          emoji: "💰",
+        },
+        {
+          id: "cash200",
+          name: "現金大獎",
+          description: "獲得200元現金",
+          cost: 20,
+          type: "money",
+          value: 200,
+          emoji: "💎",
+        },
+        {
+          id: "double_points",
+          name: "雙倍集點卡",
+          description: "下次購買獲得雙倍集點",
+          cost: 15,
+          type: "buff",
+          value: "double_points",
+          emoji: "✨",
+        },
+        {
+          id: "free_drink",
+          name: "免費飲料券",
+          description: "免費獲得一杯隨機飲料",
+          cost: 8,
+          type: "item",
+          value: "random_drink",
+          emoji: "🎫",
+        },
+        {
+          id: "vip_title",
+          name: "VIP會員稱號",
+          description: "獲得特殊身分標記",
+          cost: 50,
+          type: "title",
+          value: "VIP會員",
+          emoji: "👑",
+        },
+        {
+          id: "lucky_box",
+          name: "幸運寶箱",
+          description: "隨機獲得50-150元",
+          cost: 12,
+          type: "lucky",
+          value: [50, 150],
+          emoji: "📦",
+        },
+      ],
       dailyStats: {
         date: new Date().toDateString(),
         sales: 0,
@@ -440,8 +555,19 @@ async function registerSlashCommands() {
     new SlashCommandBuilder().setName("菜單").setDescription("查看咖啡廳菜單"),
 
     new SlashCommandBuilder()
+      .setName("集點商店")
+      .setDescription("查看集點兌換商店"),
+
+    new SlashCommandBuilder()
       .setName("集點兌換")
-      .setDescription("使用集點兌換獎勵"),
+      .setDescription("使用集點兌換獎勵")
+      .addStringOption((option) =>
+        option
+          .setName("獎勵")
+          .setDescription("要兌換的獎勵")
+          .setRequired(true)
+          .setAutocomplete(true)
+      ),
 
     new SlashCommandBuilder()
       .setName("退款")
@@ -676,6 +802,9 @@ async function handleSlashCommand(interaction) {
       case "菜單":
         await handleMenuCommand(interaction);
         break;
+      case "集點商店":
+        await handleRewardShopCommand(interaction);
+        break;
       case "集點兌換":
         await handleRedeemPointsCommand(interaction);
         break;
@@ -730,6 +859,17 @@ async function handleAutocomplete(interaction) {
       .map((item) => ({
         name: `${item.emoji} ${item.name} - ${item.price}元`,
         value: item.name,
+      }));
+
+    await interaction.respond(choices);
+  } else if (focusedOption.name === "獎勵") {
+    const value = focusedOption.value.toLowerCase();
+    const choices = coffeeShop.data.rewardShop
+      .filter((reward) => reward.name.toLowerCase().includes(value))
+      .slice(0, 25)
+      .map((reward) => ({
+        name: `${reward.emoji} ${reward.name} - ${reward.cost}點`,
+        value: reward.id,
       }));
 
     await interaction.respond(choices);
@@ -806,7 +946,7 @@ async function handleTreatCommand(interaction) {
   const embed = new EmbedBuilder()
     .setTitle("🎁 請客成功！")
     .setDescription(
-      `**${interaction.user.displayName}** 請 **${friend.displayName}** 了一份 ${item.emoji} **${item.name}**！`
+      `**${interaction.user.displayName}** 請 **${friend.displayName}** 喝了一份 ${item.emoji} **${item.name}**！`
     )
     .setColor("#FFD700")
     .addFields(
@@ -833,7 +973,7 @@ async function handleTreatCommand(interaction) {
     inline: false,
   });
 
-  embed.setTimestamp().setFooter({ text: "友誼萬歲！感謝您的慷慨～" });
+  embed.setTimestamp().setFooter({ text: "友誼萬歲！感謝你的慷慨～" });
 
   // 發送公開訊息
   await interaction.reply({ embeds: [embed] });
@@ -843,11 +983,12 @@ async function handleTreatCommand(interaction) {
     try {
       const celebrationMessages = [
         `🎉 太棒了！${friend.displayName} 被請客了！`,
-        `${friend.displayName} 兄弟轉身有急事！！`,
         `🥳 ${interaction.user.displayName} 真是太大方了！`,
-        `☕ 你的支持是燒肉跟健太舉辦婚禮的最大助力！`,
-        `🎁 免費的最香了！！`,
-        `可能不小心在裡面下藥囉～嘿嘿嘿 ❤️`,
+        `☕ 友誼的味道最香甜了～`,
+        `🎁 這就是友誼的力量！`,
+        `💕 溫暖的請客時光～`,
+        `我好像加了料呢 ❤️`,
+        `我的好獄友，坐牢加油 ⛽️`,
       ];
 
       const randomMessage =
@@ -958,7 +1099,35 @@ async function handleMenuCommand(interaction) {
   await interaction.reply({ embeds: [embed] });
 }
 
-// 集點兌換指令
+// 集點商店指令
+async function handleRewardShopCommand(interaction) {
+  const userData = coffeeShop.initUser(interaction.user.id);
+
+  const embed = new EmbedBuilder()
+    .setTitle("🎁 集點兌換商店")
+    .setDescription(`你目前有 **${userData.points}** 點集點`)
+    .setColor("#FF69B4")
+    .setTimestamp()
+    .setFooter({ text: "使用 /集點兌換 來兌換獎勵！" });
+
+  // 按成本排序並添加獎勵
+  const sortedRewards = [...coffeeShop.data.rewardShop].sort(
+    (a, b) => a.cost - b.cost
+  );
+
+  sortedRewards.forEach((reward) => {
+    const canAfford = userData.points >= reward.cost ? "✅" : "❌";
+    embed.addFields({
+      name: `${canAfford} ${reward.emoji} ${reward.name}`,
+      value: `💎 ${reward.cost} 點\n📝 ${reward.description}`,
+      inline: true,
+    });
+  });
+
+  await interaction.reply({ embeds: [embed] });
+}
+
+// 集點兌換指令 - 全新版本
 async function handleRedeemPointsCommand(interaction) {
   const result = coffeeShop.redeemPoints(interaction.user.id);
 
@@ -1602,7 +1771,7 @@ async function handleButtonInteraction(interaction) {
         { name: "🎯 目前集點", value: `${result.points} 點`, inline: true }
       )
       .setTimestamp()
-      .setFooter({ text: "感謝您的惠顧！" });
+      .setFooter({ text: "感謝你的惠顧！" });
 
     // 如果集點達到兌換標準，提醒用戶
     if (result.points >= coffeeShop.data.settings.pointsToReward) {
@@ -1886,7 +2055,8 @@ console.log(`
 - /錢包 - 查看錢包資訊和統計
 - /簽到 - 每日簽到領獎勵
 - /菜單 - 查看文字版菜單
-- /集點兌換 - 兌換集點獎勵
+- /集點商店 - 查看兌換商店🎁
+- /集點兌換 - 兌換各種獎勵✨
 - /退款 - 申請最近購買退款(5分鐘內)
 - /請客 - 請朋友喝飲料💕
 
