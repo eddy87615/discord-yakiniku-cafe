@@ -1,10 +1,10 @@
 {
   "users": {
     "836447451324874772": {
-      "money": 840,
+      "money": 860,
       "points": 3,
       "lastDaily": 1750131896823,
-      "totalEarned": 1355,
+      "totalEarned": 1375,
       "totalSpent": 515,
       "purchaseHistory": [
         {
@@ -72,10 +72,10 @@
       "lastVoiceTime": 0
     },
     "493694033202511883": {
-      "money": 350,
+      "money": 370,
       "points": 1,
       "lastDaily": 0,
-      "totalEarned": 350,
+      "totalEarned": 370,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -174,10 +174,10 @@
       "lastVoiceTime": 0
     },
     "330755940594876429": {
-      "money": 95,
+      "money": 115,
       "points": 2,
       "lastDaily": 1750214214262,
-      "totalEarned": 215,
+      "totalEarned": 235,
       "totalSpent": 120,
       "purchaseHistory": [
         {
@@ -210,10 +210,10 @@
       "lastVoiceTime": 0
     },
     "832977253696667728": {
-      "money": 10,
+      "money": 30,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 10,
+      "totalEarned": 30,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750132198847,
@@ -292,20 +292,20 @@
       "lastVoiceTime": 0
     },
     "867397559261331456": {
-      "money": 200,
+      "money": 220,
       "points": 0,
       "lastDaily": 1750219866212,
-      "totalEarned": 200,
+      "totalEarned": 220,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750213905426,
       "lastVoiceTime": 0
     },
     "694240606800838657": {
-      "money": 55,
+      "money": 75,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 55,
+      "totalEarned": 75,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219794421,
@@ -322,20 +322,20 @@
       "lastVoiceTime": 0
     },
     "461137872007987228": {
-      "money": 30,
+      "money": 50,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 30,
+      "totalEarned": 50,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219850646,
       "lastVoiceTime": 0
     },
     "483174413353615380": {
-      "money": 30,
+      "money": 50,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 30,
+      "totalEarned": 50,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219850649,
@@ -375,6 +375,36 @@
         }
       ],
       "joinTime": 1750219888505,
+      "lastVoiceTime": 0
+    },
+    "871358095622828032": {
+      "money": 100,
+      "points": 0,
+      "lastDaily": 1750223496617,
+      "totalEarned": 100,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750223496615,
+      "lastVoiceTime": 0
+    },
+    "332906119846559745": {
+      "money": 20,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 20,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750223509796,
+      "lastVoiceTime": 0
+    },
+    "649879233518239769": {
+      "money": 20,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 20,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750223509806,
       "lastVoiceTime": 0
     }
   },
@@ -453,7 +483,7 @@
   "shopAccount": 565,
   "settings": {
     "managerRoleId": "1384346151431438529",
-    "menuChannelId": "1383993054070964224",
+    "menuChannelId": "1384667133191127232",
     "messageReward": 5,
     "voiceReward": 10,
     "dailyReward": 100,
