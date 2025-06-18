@@ -1,11 +1,11 @@
 {
   "users": {
     "836447451324874772": {
-      "money": 860,
-      "points": 3,
+      "money": 1525,
+      "points": 4,
       "lastDaily": 1750131896823,
-      "totalEarned": 1375,
-      "totalSpent": 515,
+      "totalEarned": 2495,
+      "totalSpent": 970,
       "purchaseHistory": [
         {
           "item": "美式咖啡",
@@ -46,6 +46,31 @@
           "item": "被請客: 提拉米蘇 (來自 碳烤燒肉🔥)",
           "price": 0,
           "time": 1750214225853
+        },
+        {
+          "item": "珍珠奶茶",
+          "price": 75,
+          "time": 1750225094105
+        },
+        {
+          "item": "請客: 珍珠奶茶 (給 寶包)",
+          "price": 75,
+          "time": 1750225240811
+        },
+        {
+          "item": "請客: 布朗尼 (給 寶包)",
+          "price": 80,
+          "time": 1750225597110
+        },
+        {
+          "item": "請客: 珍珠奶茶 (給 CC)",
+          "price": 75,
+          "time": 1750225834243
+        },
+        {
+          "item": "請客: 鬆餅 (給 How)",
+          "price": 150,
+          "time": 1750227328968
         }
       ],
       "joinTime": 1750128762608,
@@ -72,10 +97,10 @@
       "lastVoiceTime": 0
     },
     "493694033202511883": {
-      "money": 370,
+      "money": 1125,
       "points": 1,
       "lastDaily": 0,
-      "totalEarned": 370,
+      "totalEarned": 1125,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -98,20 +123,20 @@
       "lastVoiceTime": 0
     },
     "1022888696443326528": {
-      "money": 45,
+      "money": 710,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 45,
+      "totalEarned": 710,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750129019315,
       "lastVoiceTime": 0
     },
     "152116849142661120": {
-      "money": 30,
+      "money": 105,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 30,
+      "totalEarned": 105,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750129183882,
@@ -174,10 +199,10 @@
       "lastVoiceTime": 0
     },
     "330755940594876429": {
-      "money": 115,
+      "money": 885,
       "points": 2,
       "lastDaily": 1750214214262,
-      "totalEarned": 235,
+      "totalEarned": 1005,
       "totalSpent": 120,
       "purchaseHistory": [
         {
@@ -210,12 +235,18 @@
       "lastVoiceTime": 0
     },
     "832977253696667728": {
-      "money": 30,
-      "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 30,
-      "totalSpent": 0,
-      "purchaseHistory": [],
+      "money": 80,
+      "points": 1,
+      "lastDaily": 1750225129438,
+      "totalEarned": 200,
+      "totalSpent": 120,
+      "purchaseHistory": [
+        {
+          "item": "提拉米蘇",
+          "price": 120,
+          "time": 1750225151070
+        }
+      ],
       "joinTime": 1750132198847,
       "lastVoiceTime": 0
     },
@@ -230,16 +261,21 @@
       "lastVoiceTime": 0
     },
     "571712084459651093": {
-      "money": 0,
-      "points": 1,
+      "money": 150,
+      "points": 2,
       "lastDaily": 0,
-      "totalEarned": 0,
+      "totalEarned": 150,
       "totalSpent": 0,
       "purchaseHistory": [
         {
           "item": "被請客: 拿鐵咖啡 (來自 健太)",
           "price": 0,
           "time": 1750132957776
+        },
+        {
+          "item": "被請客: 鬆餅 (來自 健太)",
+          "price": 0,
+          "time": 1750227328968
         }
       ],
       "joinTime": 1750132957775,
@@ -266,20 +302,20 @@
       "lastVoiceTime": 0
     },
     "590487806502240274": {
-      "money": 10,
+      "money": 40,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 10,
+      "totalEarned": 40,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750213771479,
       "lastVoiceTime": 0
     },
     "277776605558996992": {
-      "money": 70,
+      "money": 85,
       "points": 0,
       "lastDaily": 1750219823234,
-      "totalEarned": 120,
+      "totalEarned": 135,
       "totalSpent": 50,
       "purchaseHistory": [
         {
@@ -292,50 +328,50 @@
       "lastVoiceTime": 0
     },
     "867397559261331456": {
-      "money": 220,
+      "money": 995,
       "points": 0,
       "lastDaily": 1750219866212,
-      "totalEarned": 220,
+      "totalEarned": 995,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750213905426,
       "lastVoiceTime": 0
     },
     "694240606800838657": {
-      "money": 75,
+      "money": 1055,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 75,
+      "totalEarned": 1055,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219794421,
       "lastVoiceTime": 0
     },
     "559968200767307796": {
-      "money": 35,
+      "money": 95,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 35,
+      "totalEarned": 95,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219817197,
       "lastVoiceTime": 0
     },
     "461137872007987228": {
-      "money": 50,
+      "money": 380,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 50,
+      "totalEarned": 380,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219850646,
       "lastVoiceTime": 0
     },
     "483174413353615380": {
-      "money": 50,
+      "money": 65,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 50,
+      "totalEarned": 65,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219850649,
@@ -362,10 +398,10 @@
       "lastVoiceTime": 0
     },
     "427277356353191937": {
-      "money": 0,
+      "money": 5,
       "points": 1,
       "lastDaily": 0,
-      "totalEarned": 0,
+      "totalEarned": 5,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -388,23 +424,100 @@
       "lastVoiceTime": 0
     },
     "332906119846559745": {
-      "money": 20,
+      "money": 510,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 20,
+      "totalEarned": 510,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750223509796,
       "lastVoiceTime": 0
     },
     "649879233518239769": {
-      "money": 20,
+      "money": 640,
+      "points": 1,
+      "lastDaily": 0,
+      "totalEarned": 640,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 珍珠奶茶 (來自 健太)",
+          "price": 0,
+          "time": 1750225834243
+        }
+      ],
+      "joinTime": 1750223509806,
+      "lastVoiceTime": 0
+    },
+    "426981232497131522": {
+      "money": 5,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 20,
+      "totalEarned": 5,
       "totalSpent": 0,
       "purchaseHistory": [],
-      "joinTime": 1750223509806,
+      "joinTime": 1750223764870,
+      "lastVoiceTime": 0
+    },
+    "296298034034245633": {
+      "money": 670,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 670,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750224933654,
+      "lastVoiceTime": 0
+    },
+    "557437400515608586": {
+      "money": 705,
+      "points": 2,
+      "lastDaily": 0,
+      "totalEarned": 705,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 珍珠奶茶 (來自 健太)",
+          "price": 0,
+          "time": 1750225240811
+        },
+        {
+          "item": "被請客: 布朗尼 (來自 健太)",
+          "price": 0,
+          "time": 1750225597110
+        }
+      ],
+      "joinTime": 1750225218115,
+      "lastVoiceTime": 0
+    },
+    "306444348721987584": {
+      "money": 100,
+      "points": 0,
+      "lastDaily": 1750225996039,
+      "totalEarned": 100,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750225996037,
+      "lastVoiceTime": 0
+    },
+    "809654126924398632": {
+      "money": 450,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 450,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750226133669,
+      "lastVoiceTime": 0
+    },
+    "540481865883189258": {
+      "money": 5,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 5,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750227602013,
       "lastVoiceTime": 0
     }
   },
@@ -445,6 +558,27 @@
       "image": "🧋"
     },
     {
+      "id": "macha",
+      "name": "抹茶拿鐵",
+      "price": 90,
+      "emoji": "🍵",
+      "image": "🍵"
+    },
+    {
+      "id": "coke",
+      "name": "可樂",
+      "price": 50,
+      "emoji": "🥤",
+      "image": "🥤"
+    },
+    {
+      "id": "flowertea",
+      "name": "花茶",
+      "price": 120,
+      "emoji": "🫖",
+      "image": "🫖"
+    },
+    {
       "id": "tiramisu",
       "name": "提拉米蘇",
       "price": 120,
@@ -478,12 +612,33 @@
       "price": 50,
       "emoji": "🍪",
       "image": "🍪"
+    },
+    {
+      "id": "brulee",
+      "name": "烤布雷",
+      "price": 80,
+      "emoji": "🍮",
+      "image": "🍮"
+    },
+    {
+      "id": "fruitpie",
+      "name": "水果派",
+      "price": 90,
+      "emoji": "🥧",
+      "image": "🥧"
+    },
+    {
+      "id": "waffle",
+      "name": "鬆餅",
+      "price": 150,
+      "emoji": "🧇",
+      "image": "🧇"
     }
   ],
-  "shopAccount": 565,
+  "shopAccount": 1140,
   "settings": {
     "managerRoleId": "1384346151431438529",
-    "menuChannelId": "1384667133191127232",
+    "menuChannelId": "1383993054070964224",
     "messageReward": 5,
     "voiceReward": 10,
     "dailyReward": 100,
@@ -542,20 +697,21 @@
       "description": "隨機獲得50-150元",
       "cost": 12,
       "type": "lucky",
-      "value": [
-        50,
-        150
-      ],
+      "value": [50, 150],
       "emoji": "📦"
     }
   ],
   "dailyStats": {
     "date": "Wed Jun 18 2025",
-    "sales": 250,
+    "sales": 825,
     "customers": [
       "493694033202511883",
       "836447451324874772",
-      "427277356353191937"
+      "427277356353191937",
+      "832977253696667728",
+      "557437400515608586",
+      "649879233518239769",
+      "571712084459651093"
     ]
   }
 }
