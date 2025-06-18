@@ -876,17 +876,6 @@ async function registerSlashCommands() {
       ),
 
     new SlashCommandBuilder()
-      .setName("同性戀指數")
-      .setDescription("測試同性戀指數（純娛樂）")
-      .addUserOption((option) =>
-        option
-          .setName("成員")
-          .setDescription("要測試的成員（不填則測試自己）")
-          .setRequired(false)
-      ),
-
-    // 🔧 修復：確保語音統計指令被正確添加
-    new SlashCommandBuilder()
       .setName("語音統計")
       .setDescription("查看語音掛機統計（僅店長）"),
   ];
@@ -901,8 +890,8 @@ async function registerSlashCommands() {
     });
 
     // 驗證指令數量
-    if (commands.length !== 16) {
-      console.warn(`⚠️ 警告：預期 16 個指令，實際只有 ${commands.length} 個！`);
+    if (commands.length !== 15) {
+      console.warn(`⚠️ 警告：預期 15 個指令，實際只有 ${commands.length} 個！`);
     }
 
     // 強制重新註冊所有指令
@@ -951,7 +940,7 @@ async function registerSlashCommands() {
   }
 }
 
-// 修復後的 handleSlashCommand 函數（確保包含語音統計）
+// 修復後的 handleSlashCommand 函數
 async function handleSlashCommand(interaction) {
   const { commandName } = interaction;
 
@@ -998,9 +987,6 @@ async function handleSlashCommand(interaction) {
         break;
       case "設定":
         await handleSettingsCommand(interaction);
-        break;
-      case "同性戀指數":
-        await handleGayIndexCommand(interaction);
         break;
       case "語音統計":
         await handleVoiceStatsCommand(interaction);
@@ -1059,7 +1045,7 @@ async function forceReregisterCommands() {
   }
 }
 
-// 添加新的指令來顯示語音掛機統計
+// 語音統計指令
 async function handleVoiceStatsCommand(interaction) {
   if (
     !coffeeShop.isManager(interaction.member) &&
@@ -1130,166 +1116,6 @@ async function handleVoiceStatsCommand(interaction) {
   }
 
   await interaction.reply(createEphemeralReply("", embed));
-}
-
-// 同性戀指數測試指令
-async function handleGayIndexCommand(interaction) {
-  const targetUser = interaction.options.getUser("成員") || interaction.user;
-  const isself = targetUser.id === interaction.user.id;
-
-  // 基於用戶ID生成固定的隨機數（每個用戶每天的結果都一樣）
-  const today = new Date().toDateString();
-  const seed = `${targetUser.id}_${today}`;
-
-  // 簡單的種子隨機數生成器
-  function seededRandom(seed) {
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      const char = seed.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // 轉換為32位整數
-    }
-    return Math.abs(hash) % 101; // 0-100
-  }
-
-  const gayIndex = seededRandom(seed);
-
-  // 根據指數生成不同的留言
-  let message = "";
-  let color = "#FF69B4"; // 預設粉色
-  let emoji = "🏳️‍🌈";
-
-  if (gayIndex <= 10) {
-    message = "沒有很gay呢好可惜";
-    color = "#87CEEB";
-    emoji = "😔";
-  } else if (gayIndex <= 20) {
-    message = "有一點gay味囉！";
-    color = "#DDA0DD";
-    emoji = "😏";
-  } else if (gayIndex <= 30) {
-    message = "還不正視自己嗎？？？？";
-    color = "#FF69B4";
-    emoji = "🤔";
-  } else if (gayIndex <= 40) {
-    message = "開始有感覺了呢～";
-    color = "#FF1493";
-    emoji = "😊";
-  } else if (gayIndex <= 50) {
-    message = "雙就雙不要說自己是直的了！！！";
-    color = "#FF6347";
-    emoji = "😉";
-  } else if (gayIndex <= 60) {
-    message = "已經超過一半了耶！";
-    color = "#FF4500";
-    emoji = "😘";
-  } else if (gayIndex <= 70) {
-    message = "很有gay的天份呢！";
-    color = "#FF0000";
-    emoji = "🥰";
-  } else if (gayIndex <= 80) {
-    message = "非常gay！棒棒的！";
-    color = "#DC143C";
-    emoji = "😍";
-  } else if (gayIndex <= 90) {
-    message = "超級gay！已經覺醒了！";
-    color = "#B22222";
-    emoji = "🤩";
-  } else {
-    message = "100%純天然有機Gay！恭喜！";
-    color = "#8B0000";
-    emoji = "🎉";
-  }
-
-  // 特殊情況的額外訊息
-  const specialMessages = [
-    "（純屬娛樂，也可以當真）",
-    "（或許不科學測試結果）",
-    "（今日限定結果）",
-    "（AI智缺分析）",
-    "（基於小數據分析）",
-    "（健太的老公們身份組招募中）",
-    "（健太專業認證）",
-  ];
-
-  const randomSpecialMessage =
-    specialMessages[Math.floor(Math.random() * specialMessages.length)];
-
-  const embed = new EmbedBuilder()
-    .setTitle(`${emoji} 同性戀指數測試結果`)
-    .setDescription(`**${targetUser.displayName}** 的今日同性戀指數`)
-    .setColor(color)
-    .addFields(
-      {
-        name: "🏳️‍🌈 同性戀指數",
-        value: `**${gayIndex}%**`,
-        inline: true,
-      },
-      {
-        name: "💬 評語",
-        value: message,
-        inline: true,
-      },
-      {
-        name: "📊 等級",
-        value:
-          gayIndex <= 20
-            ? "新手"
-            : gayIndex <= 40
-            ? "進階"
-            : gayIndex <= 60
-            ? "專家"
-            : gayIndex <= 80
-            ? "大師"
-            : "傳說",
-        inline: true,
-      }
-    )
-    .setFooter({
-      text: `${randomSpecialMessage} • 結果每日更新`,
-    })
-    .setTimestamp();
-
-  // 如果是100%，添加特殊效果
-  if (gayIndex === 100) {
-    embed.addFields({
-      name: "🎊 特殊成就解鎖",
-      value: "🏆 **彩虹大師** - 獲得咖啡廳VIP折扣！",
-      inline: false,
-    });
-  }
-
-  // 如果是自己測試，用不同的語氣
-  if (isself) {
-    embed.setDescription(`你的今日同性戀指數測試結果 ${emoji}`);
-  }
-
-  await interaction.reply({ embeds: [embed] });
-
-  // 如果指數很高，發送額外的慶祝訊息
-  if (gayIndex >= 80) {
-    setTimeout(async () => {
-      try {
-        const celebrations = [
-          "🌈 恭喜高分！",
-          "🎉 Gay度爆表！",
-          "🏳️‍🌈 彩虹認證！",
-          "✨ 閃閃發光！",
-          "🦄 獨角獸等級！",
-        ];
-
-        const randomCelebration =
-          celebrations[Math.floor(Math.random() * celebrations.length)];
-        await interaction.followUp(randomCelebration);
-      } catch (error) {
-        console.log("發送慶祝訊息失敗:", error);
-      }
-    }, 2000);
-  }
-
-  console.log(
-    `🏳️‍🌈 同性戀指數測試: ${interaction.user.tag} 測試了 ${targetUser.tag}, 結果: ${gayIndex}%`
-  );
 }
 
 // 處理自動完成
@@ -1428,8 +1254,8 @@ async function handleTreatCommand(interaction) {
         `☕ 友誼的味道最香甜了～`,
         `🎁 這就是友誼的力量！`,
         `💕 溫暖的請客時光～`,
-        `我好像加了料呢 ❤️`,
-        `我的好獄友，坐牢加油 ⛽️`,
+        `☕ 一起享受美好時光～`,
+        `🍰 甜蜜的友誼時刻！`,
       ];
 
       const randomMessage =
@@ -1567,7 +1393,7 @@ async function handleRewardShopCommand(interaction) {
   await interaction.reply({ embeds: [embed] });
 }
 
-// 集點兌換指令 - 全新版本
+// 集點兌換指令
 async function handleRedeemPointsCommand(interaction) {
   const result = coffeeShop.redeemPoints(interaction.user.id);
 
@@ -1708,140 +1534,6 @@ async function handlePublishMenuCommand(interaction) {
     // 发送分页菜单（从第一页开始）
     const sentMessage = await sendPaginatedMenu(channel, 0);
 
-    // 在你的代码中添加这个缺少的函数
-    // 找到 sendPaginatedMenu 函数的后面，添加这个函数：
-
-    // 新增：处理菜单分页导航
-    async function handleMenuNavigation(interaction) {
-      try {
-        const currentPageMatch = interaction.customId.match(/(\d+)$/);
-        if (!currentPageMatch) return;
-
-        const currentPage = parseInt(currentPageMatch[1]);
-        let newPage = currentPage;
-
-        if (interaction.customId.startsWith("menu_prev_")) {
-          newPage = Math.max(0, currentPage - 1);
-        } else if (interaction.customId.startsWith("menu_next_")) {
-          const itemsPerPage = 8;
-          const totalPages = Math.ceil(
-            coffeeShop.data.menu.length / itemsPerPage
-          );
-          newPage = Math.min(totalPages - 1, currentPage + 1);
-        }
-
-        // 如果页码没有变化，直接返回
-        if (newPage === currentPage) {
-          await interaction.deferUpdate();
-          return;
-        }
-
-        // 更新消息内容
-        const itemsPerPage = 8;
-        const totalItems = coffeeShop.data.menu.length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-        const startIndex = newPage * itemsPerPage;
-        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-        const currentPageItems = coffeeShop.data.menu.slice(
-          startIndex,
-          endIndex
-        );
-
-        // 创建新的 embed
-        const embed = new EmbedBuilder()
-          .setTitle("☕ 燒肉Cafe 菜單")
-          .setColor("#8B4513")
-          .setDescription(
-            `點擊下方按鈕購買你喜歡的飲品和甜點！\n💰 購買後會立即扣款並獲得集點\n⭐ 每購買一次獲得 1 點，集滿 10 點可兌換獎勵\n\n📄 第 ${
-              newPage + 1
-            } 頁，共 ${totalPages} 頁`
-          )
-          .setTimestamp()
-          .setFooter({ text: "營業時間：店長在線時 | 點擊按鈕即可購買" });
-
-        // 添加当前页的菜单项目
-        currentPageItems.forEach((item) => {
-          embed.addFields({
-            name: `${item.emoji || "☕"} ${item.name}`,
-            value: `💰 ${item.price} 元`,
-            inline: true,
-          });
-        });
-
-        // 创建新的按钮行
-        const rows = [];
-
-        // 商品按钮
-        for (let i = 0; i < currentPageItems.length; i += 2) {
-          const row = new ActionRowBuilder();
-
-          for (let j = i; j < Math.min(i + 2, currentPageItems.length); j++) {
-            const item = currentPageItems[j];
-
-            const buttonLabel = `${item.emoji || "☕"} ${item.name} - ${
-              item.price
-            }元`;
-            const truncatedLabel =
-              buttonLabel.length > 80
-                ? buttonLabel.substring(0, 77) + "..."
-                : buttonLabel;
-
-            const button = new ButtonBuilder()
-              .setCustomId(`buy_${item.id}`)
-              .setLabel(truncatedLabel)
-              .setStyle(ButtonStyle.Primary);
-
-            row.addComponents(button);
-          }
-
-          rows.push(row);
-        }
-
-        // 导航按钮行
-        const navRow = new ActionRowBuilder();
-
-        navRow.addComponents(
-          new ButtonBuilder()
-            .setCustomId(`menu_prev_${newPage}`)
-            .setLabel("⬅️ 上一頁")
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(newPage === 0)
-        );
-
-        navRow.addComponents(
-          new ButtonBuilder()
-            .setCustomId(`menu_page_${newPage}`)
-            .setLabel(`${newPage + 1}/${totalPages}`)
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(true)
-        );
-
-        navRow.addComponents(
-          new ButtonBuilder()
-            .setCustomId(`menu_next_${newPage}`)
-            .setLabel("下一頁 ➡️")
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(newPage === totalPages - 1)
-        );
-
-        rows.push(navRow);
-
-        // 更新消息
-        await interaction.update({
-          embeds: [embed],
-          components: rows,
-        });
-
-        console.log(
-          `📄 菜單分頁: ${interaction.user.tag} 切換到第 ${newPage + 1} 頁`
-        );
-      } catch (error) {
-        console.error("❌ 處理分頁導航時發生錯誤:", error);
-        await interaction.deferUpdate();
-      }
-    }
-
     console.log(
       `✅ 分页菜单已发布到频道 ${channel.name}，讯息ID: ${sentMessage.id}`
     );
@@ -1937,7 +1629,7 @@ async function handleEditMenuCommand(interaction) {
   }
 }
 
-// 營收報告指令（僅店長）- 修復版本
+// 營收報告指令（僅店長）
 async function handleRevenueReportCommand(interaction) {
   if (
     !coffeeShop.isManager(interaction.member) &&
@@ -2155,7 +1847,7 @@ async function handleQuickSetupMenuCommand(interaction) {
   await interaction.reply({ embeds: [embed] });
 }
 
-// 除錯菜單指令 - 修復版本
+// 除錯菜單指令
 async function handleDebugMenuCommand(interaction) {
   if (
     !coffeeShop.isManager(interaction.member) &&
@@ -2583,15 +2275,6 @@ async function sendPaginatedMenu(channel, page = 0) {
   });
 }
 
-// 找到 sendPaginatedMenu 函数的结尾：
-// return await channel.send({
-//     embeds: [embed],
-//     components: rows,
-//   });
-// }
-
-// 在上面这个 } 的后面添加以下函数：
-
 // 新增：处理菜单分页导航
 async function handleMenuNavigation(interaction) {
   try {
@@ -2735,7 +2418,7 @@ async function handleMenuNavigation(interaction) {
   }
 }
 
-// 补充缺少的开启频道函数（如果也缺少的话）
+// 补充缺少的开启频道函数
 async function lightningOpenChannel(channel) {
   if (currentState === "open") return;
 
@@ -2796,9 +2479,9 @@ async function initializeLightningFast() {
       return;
     }
 
-    console.log(`⚡ 頻道開啟完成 (總耗時: ${Date.now() - startTime}ms)`);
+    console.log(`⚡ 頻道初始化完成`);
   } catch (error) {
-    console.error(`❌ 開啟頻道失敗: ${error.message}`);
+    console.error(`❌ 初始化頻道失敗: ${error.message}`);
   }
 }
 
@@ -2865,32 +2548,6 @@ async function lightningCloseChannel(channel) {
   }
 }
 
-// 閃電監控 (保留原有功能)
-function startLightningMonitoring() {
-  console.log("⚡ 啟動閃電監控 (每20分鐘檢查一次)");
-
-  setInterval(async () => {
-    try {
-      ultraManager.cleanCache();
-
-      const channel = await client.channels.fetch(CONFIG.VOICE_CHANNEL_ID);
-      if (!channel) return;
-
-      const targetName =
-        currentState === "open" ? CONFIG.OPEN_NAME : CONFIG.CLOSED_NAME;
-
-      if (channel.name !== targetName) {
-        console.log(
-          `⚡ 監控發現名稱需修正: "${channel.name}" → "${targetName}"`
-        );
-        await ultraManager.rocketRename(channel, targetName);
-      }
-    } catch (error) {
-      console.error("監控檢查失敗:", error.message);
-    }
-  }, 20 * 60 * 1000);
-}
-
 // 錯誤處理
 client.on("error", (error) => console.error("Discord錯誤:", error.message));
 process.on("unhandledRejection", (error) =>
@@ -2915,6 +2572,7 @@ console.log(`
 
 🚀 咖啡廳管理系統:
 • 互動式菜單購買系統 ✅
+• 分頁菜單支持 ✅
 • 集點兌換獎勵機制 ✅
 • 自動賺錢系統 (訊息 + 語音掛機) ✅
 • 每日簽到獎勵 ✅
@@ -2923,7 +2581,7 @@ console.log(`
 • 退款保護機制 ✅
 
 🏪 店長專屬功能:
-• 發布互動式菜單 ✅
+• 發布互動式分頁菜單 ✅
 • 編輯菜單項目 (新增/刪除) ✅
 • 查看營收報告 ✅
 • 發放薪水給員工 ✅
@@ -2938,28 +2596,11 @@ console.log(`
 • 每日簽到: ${coffeeShop.data.settings.dailyReward} 元/天
 • 集點兌換: 每 ${coffeeShop.data.settings.pointsToReward} 點兌換獎勵
 
-🎯 完整購買流程:
-1. 管理員使用 /設定 配置系統
-2. 店長使用 /快速設定菜單 建立菜單
-3. 店長使用 /發布菜單 發布到指定頻道
-4. 玩家點擊按鈕購買 (修復超時問題)
-5. 自動扣款並獲得虛擬飲料
-6. 累積集點，達標可兌換獎勵
-7. 收益進入咖啡廳戶頭
-8. 如有問題可在5分鐘內退款
-
 ⚡ 原有功能完全保留:
 • 語音頻道自動開關 ✅
 • 極速權限控制 ✅
 • 智能改名系統 ✅
 • 指定成員管理 ✅
-
-📊 數據追蹤:
-• 每日營收統計
-• 顧客購買記錄
-• 熱門商品分析
-• 用戶活躍度監控
-• 完整的資料檔案管理
 
 🎮 完整指令列表:
 
@@ -2973,40 +2614,25 @@ console.log(`
 - /請客 - 請朋友喝飲料💕
 
 🏪 店長指令:
-- /發布菜單 - 發布互動式按鈕菜單
+- /發布菜單 - 發布互動式分頁菜單
 - /編輯菜單 新增/刪除 - 管理菜單項目
 - /營收報告 - 查看經營數據和統計
 - /發薪水 - 發放薪水給員工
 - /快速設定菜單 - 一鍵建立8個預設項目
 - /除錯菜單 - 檢查菜單和系統狀態
 - /退款 玩家:@某人 - 為他人處理退款
+- /語音統計 - 查看語音掛機統計
 
 👑 管理員指令:
 - /設定 店長身分組 - 設定店長權限
 - /設定 菜單頻道 - 設定菜單發布頻道
 
-🛡️ 安全和修復機制:
-• 使用 deferReply() 避免按鈕超時 ✅
-• 完整的錯誤處理和日誌記錄 ✅
-• 自動退款系統保護用戶 ✅
-• 權限分級管理 ✅
-• 資料備份和恢復 ✅
-
-💡 特色功能:
-• 按鈕式購買，響應快速不超時 ✅
-• 實時金額扣除和集點累積 ✅
-• 隨機感謝語句增加趣味性 ✅
-• 購買後公開展示增加互動 ✅
-• 集點進度提醒 ✅
-• 咖啡廳戶頭獨立管理 ✅
-• 完整的除錯和監控系統 ✅
-
-🔧 修復內容:
-• 修復 Discord.js ephemeral 棄用警告 ✅
-• 修復營收報告 Set/Array 相容性問題 ✅
-• 修復按鈕互動超時問題 ✅
-• 增強錯誤處理和日誌記錄 ✅
-• 添加資料完整性檢查 ✅
+✅ 清理完成內容:
+• 移除同性戀指數測試功能 ✅
+• 移除相關指令和處理函數 ✅
+• 清理慶祝訊息中的相關內容 ✅
+• 更新指令數量統計 (16 → 15) ✅
+• 保持所有咖啡廳功能完整 ✅
 
 🔧 設定步驟:
 1. 設定環境變數 (.env 檔案)
@@ -3015,23 +2641,8 @@ console.log(`
 4. /設定 店長身分組 @店長角色
 5. /設定 菜單頻道 #菜單頻道
 6. /快速設定菜單 (建立預設菜單)
-7. /發布菜單 (發布互動式菜單)
+7. /發布菜單 (發布互動式分頁菜單)
 8. 開始營業！
 
-⚠️ 問題排除:
-• 按鈕交互失敗 → 重新 /發布菜單
-• 扣款但沒收到商品 → 使用 /退款
-• 指令不出現 → 重啟機器人
-• 菜單沒按鈕 → 檢查菜單是否為空
-• 權限問題 → 確認店長身分組設定
-
-🎉 現在你的咖啡廳完全準備好了！
-這是一個完整的、功能齊全的咖啡廳經營機器人！
-
-✅ 主要修復完成:
-1. 修復營收報告指令錯誤 (Set/Array 相容性)
-2. 修復 Discord.js ephemeral 警告 (使用 flags: [4096])
-3. 增強按鈕互動錯誤處理
-4. 添加資料完整性驗證
-5. 統一使用新的回覆格式
+🎉 現在你的咖啡廳機器人更專注於經營功能！
 `);
