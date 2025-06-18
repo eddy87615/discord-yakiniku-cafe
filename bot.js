@@ -661,122 +661,6 @@ client.on("messageCreate", (message) => {
   );
 });
 
-// 補充缺少的 lightningOpenChannel 函數
-// 將此函數添加到你的代碼中，建議放在 lightningCloseChannel 函數之前
-
-async function lightningOpenChannel(channel) {
-  if (currentState === "open") return;
-
-  console.log(`⚡ 閃電開啟頻道...`);
-  const startTime = Date.now();
-
-  try {
-    // 1. 設定所有人可以連接的權限
-    const everyonePermPromise = channel.permissionOverwrites.edit(
-      channel.guild.roles.everyone,
-      {
-        [PermissionFlagsBits.Connect]: true,
-      }
-    );
-
-    // 2. 確保指定用戶有連接權限
-    const userPermPromises = CONFIG.SPECIAL_USER_IDS.map(async (userId) => {
-      try {
-        await channel.permissionOverwrites.edit(userId.trim(), {
-          [PermissionFlagsBits.Connect]: true,
-        });
-      } catch (err) {
-        console.log(`設定用戶 ${userId} 權限失敗: ${err.message}`);
-      }
-    });
-
-    // 3. 並行執行權限設定
-    await Promise.allSettled([
-      Promise.race([
-        everyonePermPromise,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("權限設定超時")), 5000)
-        ),
-      ]),
-      ...userPermPromises,
-    ]);
-
-    console.log(`⚡ 權限設定完成 (${Date.now() - startTime}ms)`);
-
-    // 4. 使用背景改名來避免阻塞
-    ultraManager.backgroundRename(channel, CONFIG.OPEN_NAME);
-
-    // 5. 更新狀態
-    currentState = "open";
-    console.log(`⚡ 頻道開啟完成 (總耗時: ${Date.now() - startTime}ms)`);
-  } catch (error) {
-    console.error(`❌ 開啟頻道失敗: ${error.message}`);
-  }
-}
-
-// 閃電關閉頻道 (保留原有功能，為了完整性也一併提供)
-async function lightningCloseChannel(channel) {
-  if (currentState === "closed") return;
-
-  console.log(`⚡ 閃電關閉頻道...`);
-  const startTime = Date.now();
-
-  try {
-    const kickPromises = [];
-    const membersToKick = channel.members.filter((member) => {
-      if (CONFIG.SPECIAL_USER_IDS.includes(member.id)) return false;
-      if (CONFIG.EXCLUDED_USER_IDS.includes(member.id)) return false;
-      return true;
-    });
-
-    for (const [, member] of membersToKick) {
-      kickPromises.push(
-        member.voice
-          .disconnect("頻道已打烊")
-          .catch((err) => console.log(`踢出 ${member.displayName} 失敗`))
-      );
-    }
-
-    const permPromise = channel.permissionOverwrites.edit(
-      channel.guild.roles.everyone,
-      {
-        [PermissionFlagsBits.Connect]: false,
-      }
-    );
-
-    await Promise.allSettled([
-      Promise.all(kickPromises),
-      Promise.race([
-        permPromise,
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("權限超時")), 5000)
-        ),
-      ]),
-    ]);
-
-    console.log(`⚡ 踢人和權限設定完成 (${Date.now() - startTime}ms)`);
-
-    const userPermPromises = CONFIG.SPECIAL_USER_IDS.map(async (userId) => {
-      try {
-        await channel.permissionOverwrites.edit(userId.trim(), {
-          [PermissionFlagsBits.Connect]: true,
-        });
-      } catch (err) {
-        console.log(`設定用戶 ${userId} 權限失敗`);
-      }
-    });
-
-    await Promise.allSettled(userPermPromises);
-
-    ultraManager.backgroundRename(channel, CONFIG.CLOSED_NAME);
-
-    currentState = "closed";
-    console.log(`⚡ 頻道關閉完成 (總耗時: ${Date.now() - startTime}ms)`);
-  } catch (error) {
-    console.error(`❌ 關閉頻道失敗: ${error.message}`);
-  }
-}
-
 // 語音狀態更新事件 (保留原有功能)
 client.on("voiceStateUpdate", async (oldState, newState) => {
   const userId = newState.id;
@@ -1771,21 +1655,21 @@ async function handleRefundCommand(interaction) {
   await interaction.reply(createEphemeralReply("", embed));
 }
 
-// 發布菜單指令（僅店長）- 修復版本
+// 发布菜单指令（仅店长）- 分页版本
 async function handlePublishMenuCommand(interaction) {
   if (
     !coffeeShop.isManager(interaction.member) &&
     !coffeeShop.isAdmin(interaction.member)
   ) {
     return await interaction.reply(
-      createEphemeralReply("❌ 只有店長和管理員可以發布菜單！")
+      createEphemeralReply("❌ 只有店长和管理员可以发布菜单！")
     );
   }
 
   if (!coffeeShop.data.settings.menuChannelId) {
     return await interaction.reply(
       createEphemeralReply(
-        "❌ 請先設定菜單發布頻道！使用 `/設定 菜單頻道 #頻道名稱`"
+        "❌ 请先设定菜单发布频道！使用 `/设定 菜单频道 #频道名称`"
       )
     );
   }
@@ -1793,7 +1677,7 @@ async function handlePublishMenuCommand(interaction) {
   if (coffeeShop.data.menu.length === 0) {
     return await interaction.reply(
       createEphemeralReply(
-        "❌ 菜單是空的！請先使用 `/快速設定菜單` 或 `/編輯菜單 新增` 來建立菜單項目。"
+        "❌ 菜单是空的！请先使用 `/快速设定菜单` 或 `/编辑菜单 新增` 来建立菜单项目。"
       )
     );
   }
@@ -1805,162 +1689,172 @@ async function handlePublishMenuCommand(interaction) {
 
     if (!channel) {
       return await interaction.reply(
-        createEphemeralReply("❌ 找不到菜單頻道！請重新設定菜單頻道。")
+        createEphemeralReply("❌ 找不到菜单频道！请重新设定菜单频道。")
       );
     }
 
-    // 檢查機器人在該頻道的權限
+    // 检查机器人权限
     const botPermissions = channel.permissionsFor(interaction.guild.members.me);
     if (
       !botPermissions.has(["SendMessages", "EmbedLinks", "UseExternalEmojis"])
     ) {
       return await interaction.reply(
         createEphemeralReply(
-          "❌ 機器人在目標頻道沒有足夠權限！需要：發送訊息、嵌入連結、使用外部表情符號"
+          "❌ 机器人在目标频道没有足够权限！需要：发送讯息、嵌入连结、使用外部表情符号"
         )
       );
     }
 
-    // 創建菜單 Embed
-    const embed = new EmbedBuilder()
-      .setTitle("☕ 燒肉Cafe 菜單")
-      .setColor("#8B4513")
-      .setDescription(
-        "點擊下方按鈕購買你喜歡的飲品和甜點！\n💰 購買後會立即扣款並獲得集點\n⭐ 每購買一次獲得 1 點，集滿 10 點可兌換獎勵"
-      )
-      .setTimestamp()
-      .setFooter({ text: "營業時間：店長在線時 | 點擊按鈕即可購買" });
+    // 发送分页菜单（从第一页开始）
+    const sentMessage = await sendPaginatedMenu(channel, 0);
 
-    // 在 embed 中顯示所有菜單項目
-    coffeeShop.data.menu.forEach((item) => {
-      embed.addFields({
-        name: `${item.emoji || "☕"} ${item.name}`,
-        value: `💰 ${item.price} 元`,
-        inline: true,
-      });
-    });
+    // 在你的代码中添加这个缺少的函数
+    // 找到 sendPaginatedMenu 函数的后面，添加这个函数：
 
-    // 創建按鈕行數組
-    const rows = [];
-    const maxButtonsPerRow = 2; // Discord 建議每行最多2個按鈕以保持美觀
-    const maxRows = 5; // Discord 限制最多5行
+    // 新增：处理菜单分页导航
+    async function handleMenuNavigation(interaction) {
+      try {
+        const currentPageMatch = interaction.customId.match(/(\d+)$/);
+        if (!currentPageMatch) return;
 
-    console.log(
-      `📋 開始創建菜單按鈕，共 ${coffeeShop.data.menu.length} 個項目`
-    );
+        const currentPage = parseInt(currentPageMatch[1]);
+        let newPage = currentPage;
 
-    for (
-      let i = 0;
-      i < coffeeShop.data.menu.length && rows.length < maxRows;
-      i += maxButtonsPerRow
-    ) {
-      const row = new ActionRowBuilder();
-
-      // 為當前行添加按鈕
-      for (
-        let j = i;
-        j < Math.min(i + maxButtonsPerRow, coffeeShop.data.menu.length);
-        j++
-      ) {
-        const item = coffeeShop.data.menu[j];
-
-        // 驗證按鈕數據
-        if (!item.id || !item.name || !item.price) {
-          console.log(`⚠️ 跳過無效的菜單項目:`, item);
-          continue;
+        if (interaction.customId.startsWith("menu_prev_")) {
+          newPage = Math.max(0, currentPage - 1);
+        } else if (interaction.customId.startsWith("menu_next_")) {
+          const itemsPerPage = 8;
+          const totalPages = Math.ceil(
+            coffeeShop.data.menu.length / itemsPerPage
+          );
+          newPage = Math.min(totalPages - 1, currentPage + 1);
         }
 
-        console.log(`🔘 創建按鈕: ${item.id} - ${item.name} - ${item.price}元`);
+        // 如果页码没有变化，直接返回
+        if (newPage === currentPage) {
+          await interaction.deferUpdate();
+          return;
+        }
 
-        // 確保按鈕標籤不超過 80 字符限制
-        const buttonLabel = `${item.emoji || "☕"} ${item.name} - ${
-          item.price
-        }元`;
-        const truncatedLabel =
-          buttonLabel.length > 80
-            ? buttonLabel.substring(0, 77) + "..."
-            : buttonLabel;
+        // 更新消息内容
+        const itemsPerPage = 8;
+        const totalItems = coffeeShop.data.menu.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-        const button = new ButtonBuilder()
-          .setCustomId(`buy_${item.id}`)
-          .setLabel(truncatedLabel)
-          .setStyle(ButtonStyle.Primary);
-
-        row.addComponents(button);
-      }
-
-      // 只有當行中有按鈕時才添加到 rows
-      if (row.components.length > 0) {
-        rows.push(row);
-        console.log(
-          `📝 創建第 ${rows.length} 行，包含 ${row.components.length} 個按鈕`
+        const startIndex = newPage * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+        const currentPageItems = coffeeShop.data.menu.slice(
+          startIndex,
+          endIndex
         );
+
+        // 创建新的 embed
+        const embed = new EmbedBuilder()
+          .setTitle("☕ 燒肉Cafe 菜單")
+          .setColor("#8B4513")
+          .setDescription(
+            `點擊下方按鈕購買你喜歡的飲品和甜點！\n💰 購買後會立即扣款並獲得集點\n⭐ 每購買一次獲得 1 點，集滿 10 點可兌換獎勵\n\n📄 第 ${
+              newPage + 1
+            } 頁，共 ${totalPages} 頁`
+          )
+          .setTimestamp()
+          .setFooter({ text: "營業時間：店長在線時 | 點擊按鈕即可購買" });
+
+        // 添加当前页的菜单项目
+        currentPageItems.forEach((item) => {
+          embed.addFields({
+            name: `${item.emoji || "☕"} ${item.name}`,
+            value: `💰 ${item.price} 元`,
+            inline: true,
+          });
+        });
+
+        // 创建新的按钮行
+        const rows = [];
+
+        // 商品按钮
+        for (let i = 0; i < currentPageItems.length; i += 2) {
+          const row = new ActionRowBuilder();
+
+          for (let j = i; j < Math.min(i + 2, currentPageItems.length); j++) {
+            const item = currentPageItems[j];
+
+            const buttonLabel = `${item.emoji || "☕"} ${item.name} - ${
+              item.price
+            }元`;
+            const truncatedLabel =
+              buttonLabel.length > 80
+                ? buttonLabel.substring(0, 77) + "..."
+                : buttonLabel;
+
+            const button = new ButtonBuilder()
+              .setCustomId(`buy_${item.id}`)
+              .setLabel(truncatedLabel)
+              .setStyle(ButtonStyle.Primary);
+
+            row.addComponents(button);
+          }
+
+          rows.push(row);
+        }
+
+        // 导航按钮行
+        const navRow = new ActionRowBuilder();
+
+        navRow.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`menu_prev_${newPage}`)
+            .setLabel("⬅️ 上一頁")
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(newPage === 0)
+        );
+
+        navRow.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`menu_page_${newPage}`)
+            .setLabel(`${newPage + 1}/${totalPages}`)
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(true)
+        );
+
+        navRow.addComponents(
+          new ButtonBuilder()
+            .setCustomId(`menu_next_${newPage}`)
+            .setLabel("下一頁 ➡️")
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(newPage === totalPages - 1)
+        );
+
+        rows.push(navRow);
+
+        // 更新消息
+        await interaction.update({
+          embeds: [embed],
+          components: rows,
+        });
+
+        console.log(
+          `📄 菜單分頁: ${interaction.user.tag} 切換到第 ${newPage + 1} 頁`
+        );
+      } catch (error) {
+        console.error("❌ 處理分頁導航時發生錯誤:", error);
+        await interaction.deferUpdate();
       }
     }
 
-    // 檢查是否成功創建了按鈕
-    if (rows.length === 0) {
-      console.log(`❌ 沒有創建任何按鈕！菜單項目:`, coffeeShop.data.menu);
-      return await interaction.reply(
-        createEphemeralReply(
-          "❌ 無法創建菜單按鈕！請檢查菜單項目是否有效。使用 `/除錯菜單` 查看詳細資訊。"
-        )
-      );
-    }
-
     console.log(
-      `✅ 成功創建 ${rows.length} 行按鈕，總計 ${rows.reduce(
-        (sum, row) => sum + row.components.length,
-        0
-      )} 個按鈕`
+      `✅ 分页菜单已发布到频道 ${channel.name}，讯息ID: ${sentMessage.id}`
     );
 
-    // 如果菜單項目過多，添加警告
-    if (coffeeShop.data.menu.length > maxRows * maxButtonsPerRow) {
-      embed.addFields({
-        name: "⚠️ 注意",
-        value: `菜單項目較多，僅顯示前 ${
-          maxRows * maxButtonsPerRow
-        } 個項目的按鈕。`,
-        inline: false,
-      });
-    }
-
-    // 發送菜單到指定頻道
-    const sentMessage = await channel.send({
-      embeds: [embed],
-      components: rows,
-    });
-
-    console.log(
-      `✅ 菜單已發布到頻道 ${channel.name}，訊息ID: ${sentMessage.id}`
-    );
-
-    // 回覆成功訊息
+    // 回复成功讯息
     await interaction.reply(
       createEphemeralReply(
-        `✅ 菜單已成功發布到 ${channel}！\n📊 包含 ${
-          coffeeShop.data.menu.length
-        } 個項目，${rows.reduce(
-          (sum, row) => sum + row.components.length,
-          0
-        )} 個按鈕`
+        `✅ 分页菜单已成功发布到 ${channel}！\n📊 包含 ${coffeeShop.data.menu.length} 个项目，支持分页浏览`
       )
     );
   } catch (error) {
-    console.error("❌ 發布菜單時發生錯誤:", error);
-
-    let errorMessage = "❌ 發布菜單時發生錯誤！";
-
-    if (error.code === 50013) {
-      errorMessage += " 機器人缺少權限。";
-    } else if (error.code === 50035) {
-      errorMessage += " 菜單數據格式錯誤。";
-    } else {
-      errorMessage += ` 錯誤詳情: ${error.message}`;
-    }
-
-    await interaction.reply(createEphemeralReply(errorMessage));
+    console.error("❌ 发布菜单时发生错误:", error);
+    await interaction.reply(createEphemeralReply("❌ 发布菜单时发生错误！"));
   }
 }
 
@@ -2462,32 +2356,38 @@ async function handleSettingsCommand(interaction) {
   }
 }
 
-// 處理按鈕互動 - 完全修復版本
+// 修改 handleButtonInteraction 函数，添加分页处理
 async function handleButtonInteraction(interaction) {
   console.log(
     `🔘 按鈕點擊: ${interaction.customId} 由 ${interaction.user.tag}`
   );
 
+  // 处理分页按钮
+  if (
+    interaction.customId.startsWith("menu_prev_") ||
+    interaction.customId.startsWith("menu_next_")
+  ) {
+    await handleMenuNavigation(interaction);
+    return;
+  }
+
+  // 处理购买按钮
   if (!interaction.customId.startsWith("buy_")) {
     console.log(`❌ 無效的按鈕ID: ${interaction.customId}`);
     return;
   }
 
   try {
-    // 立即回應互動，避免超時 - 使用新版本語法
+    // 立即回应互动，避免超时
     await interaction.deferReply({ flags: [4096] });
 
     const itemId = interaction.customId.replace("buy_", "");
     console.log(`🛒 嘗試購買項目: ${itemId}`);
 
-    // 檢查項目是否存在
+    // 检查项目是否存在
     const item = coffeeShop.data.menu.find((i) => i.id === itemId);
     if (!item) {
       console.log(`❌ 找不到項目: ${itemId}`);
-      console.log(
-        `📋 可用項目:`,
-        coffeeShop.data.menu.map((i) => i.id)
-      );
       return await interaction.editReply({
         content: `❌ 找不到商品！項目ID: ${itemId}`,
       });
@@ -2501,7 +2401,7 @@ async function handleButtonInteraction(interaction) {
       });
     }
 
-    // 隨機的感謝語句
+    // 随机感谢语句
     const thankMessages = [
       `恭喜！你得到了一份新鮮製作的`,
       `太棒了！為你精心準備的`,
@@ -2514,7 +2414,7 @@ async function handleButtonInteraction(interaction) {
     const randomMessage =
       thankMessages[Math.floor(Math.random() * thankMessages.length)];
 
-    // 創建購買成功的回應
+    // 创建购买成功的回应
     const embed = new EmbedBuilder()
       .setTitle("🎉 購買成功！")
       .setDescription(
@@ -2534,7 +2434,7 @@ async function handleButtonInteraction(interaction) {
       .setTimestamp()
       .setFooter({ text: "感謝你的惠顧！" });
 
-    // 如果集點達到兌換標準，提醒用戶
+    // 如果集点达到兑换标准，提醒用户
     if (result.points >= coffeeShop.data.settings.pointsToReward) {
       embed.addFields({
         name: "🎁 集點提醒",
@@ -2543,10 +2443,9 @@ async function handleButtonInteraction(interaction) {
       });
     }
 
-    // 編輯回覆
     await interaction.editReply({ embeds: [embed] });
 
-    // 延遲發送公開訊息
+    // 延迟发送公开消息
     setTimeout(async () => {
       try {
         const channel = interaction.channel;
@@ -2564,7 +2463,6 @@ async function handleButtonInteraction(interaction) {
     );
   } catch (error) {
     console.error("❌ 處理按鈕互動時發生錯誤:", error);
-
     try {
       if (interaction.deferred) {
         await interaction.editReply({
@@ -2579,6 +2477,312 @@ async function handleButtonInteraction(interaction) {
     } catch (replyError) {
       console.error("❌ 無法回覆互動:", replyError);
     }
+  }
+}
+
+// 新增：发送分页菜单函数
+async function sendPaginatedMenu(channel, page = 0) {
+  const itemsPerPage = 8; // 每页8个按钮（4行 x 2个）
+  const totalItems = coffeeShop.data.menu.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // 确保页码在有效范围内
+  page = Math.max(0, Math.min(page, totalPages - 1));
+
+  const startIndex = page * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const currentPageItems = coffeeShop.data.menu.slice(startIndex, endIndex);
+
+  // 创建菜单 Embed
+  const embed = new EmbedBuilder()
+    .setTitle("☕ 燒肉Cafe 菜單")
+    .setColor("#8B4513")
+    .setDescription(
+      `點擊下方按鈕購買你喜歡的飲品和甜點！\n💰 購買後會立即扣款並獲得集點\n⭐ 每購買一次獲得 1 點，集滿 10 點可兌換獎勵\n\n📄 第 ${
+        page + 1
+      } 頁，共 ${totalPages} 頁`
+    )
+    .setTimestamp()
+    .setFooter({ text: "營業時間：店長在線時 | 點擊按鈕即可購買" });
+
+  // 在 embed 中显示当前页的菜单项目
+  currentPageItems.forEach((item) => {
+    embed.addFields({
+      name: `${item.emoji || "☕"} ${item.name}`,
+      value: `💰 ${item.price} 元`,
+      inline: true,
+    });
+  });
+
+  // 创建按钮行
+  const rows = [];
+
+  // 商品按钮（最多4行，每行2个）
+  for (let i = 0; i < currentPageItems.length; i += 2) {
+    const row = new ActionRowBuilder();
+
+    for (let j = i; j < Math.min(i + 2, currentPageItems.length); j++) {
+      const item = currentPageItems[j];
+
+      const buttonLabel = `${item.emoji || "☕"} ${item.name} - ${
+        item.price
+      }元`;
+      const truncatedLabel =
+        buttonLabel.length > 80
+          ? buttonLabel.substring(0, 77) + "..."
+          : buttonLabel;
+
+      const button = new ButtonBuilder()
+        .setCustomId(`buy_${item.id}`)
+        .setLabel(truncatedLabel)
+        .setStyle(ButtonStyle.Primary);
+
+      row.addComponents(button);
+    }
+
+    rows.push(row);
+  }
+
+  // 导航按钮行（如果有多页）
+  if (totalPages > 1) {
+    const navRow = new ActionRowBuilder();
+
+    // 上一页按钮
+    navRow.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`menu_prev_${page}`)
+        .setLabel("⬅️ 上一頁")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(page === 0)
+    );
+
+    // 页码显示按钮（不可点击）
+    navRow.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`menu_page_${page}`)
+        .setLabel(`${page + 1}/${totalPages}`)
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(true)
+    );
+
+    // 下一页按钮
+    navRow.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`menu_next_${page}`)
+        .setLabel("下一頁 ➡️")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(page === totalPages - 1)
+    );
+
+    rows.push(navRow);
+  }
+
+  return await channel.send({
+    embeds: [embed],
+    components: rows,
+  });
+}
+
+// 找到 sendPaginatedMenu 函数的结尾：
+// return await channel.send({
+//     embeds: [embed],
+//     components: rows,
+//   });
+// }
+
+// 在上面这个 } 的后面添加以下函数：
+
+// 新增：处理菜单分页导航
+async function handleMenuNavigation(interaction) {
+  try {
+    const currentPageMatch = interaction.customId.match(/(\d+)$/);
+    if (!currentPageMatch) {
+      console.log("❌ 无法解析页码");
+      await interaction.deferUpdate();
+      return;
+    }
+
+    const currentPage = parseInt(currentPageMatch[1]);
+    let newPage = currentPage;
+
+    if (interaction.customId.startsWith("menu_prev_")) {
+      newPage = Math.max(0, currentPage - 1);
+      console.log(`📄 切換到上一頁: ${currentPage} → ${newPage}`);
+    } else if (interaction.customId.startsWith("menu_next_")) {
+      const itemsPerPage = 8;
+      const totalPages = Math.ceil(coffeeShop.data.menu.length / itemsPerPage);
+      newPage = Math.min(totalPages - 1, currentPage + 1);
+      console.log(`📄 切換到下一頁: ${currentPage} → ${newPage}`);
+    }
+
+    // 如果页码没有变化，直接返回
+    if (newPage === currentPage) {
+      console.log(`📄 頁碼無變化，保持在第 ${currentPage + 1} 頁`);
+      await interaction.deferUpdate();
+      return;
+    }
+
+    // 更新消息内容
+    const itemsPerPage = 8;
+    const totalItems = coffeeShop.data.menu.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    const startIndex = newPage * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const currentPageItems = coffeeShop.data.menu.slice(startIndex, endIndex);
+
+    console.log(
+      `📄 更新菜單頁面: 第 ${newPage + 1} 頁，顯示 ${
+        currentPageItems.length
+      } 個項目`
+    );
+
+    // 创建新的 embed
+    const embed = new EmbedBuilder()
+      .setTitle("☕ 燒肉Cafe 菜單")
+      .setColor("#8B4513")
+      .setDescription(
+        `點擊下方按鈕購買你喜歡的飲品和甜點！\n💰 購買後會立即扣款並獲得集點\n⭐ 每購買一次獲得 1 點，集滿 10 點可兌換獎勵\n\n📄 第 ${
+          newPage + 1
+        } 頁，共 ${totalPages} 頁`
+      )
+      .setTimestamp()
+      .setFooter({ text: "營業時間：店長在線時 | 點擊按鈕即可購買" });
+
+    // 添加当前页的菜单项目
+    currentPageItems.forEach((item) => {
+      embed.addFields({
+        name: `${item.emoji || "☕"} ${item.name}`,
+        value: `💰 ${item.price} 元`,
+        inline: true,
+      });
+    });
+
+    // 创建新的按钮行
+    const rows = [];
+
+    // 商品按钮
+    for (let i = 0; i < currentPageItems.length; i += 2) {
+      const row = new ActionRowBuilder();
+
+      for (let j = i; j < Math.min(i + 2, currentPageItems.length); j++) {
+        const item = currentPageItems[j];
+
+        const buttonLabel = `${item.emoji || "☕"} ${item.name} - ${
+          item.price
+        }元`;
+        const truncatedLabel =
+          buttonLabel.length > 80
+            ? buttonLabel.substring(0, 77) + "..."
+            : buttonLabel;
+
+        const button = new ButtonBuilder()
+          .setCustomId(`buy_${item.id}`)
+          .setLabel(truncatedLabel)
+          .setStyle(ButtonStyle.Primary);
+
+        row.addComponents(button);
+      }
+
+      rows.push(row);
+    }
+
+    // 导航按钮行
+    const navRow = new ActionRowBuilder();
+
+    navRow.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`menu_prev_${newPage}`)
+        .setLabel("⬅️ 上一頁")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(newPage === 0)
+    );
+
+    navRow.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`menu_page_${newPage}`)
+        .setLabel(`${newPage + 1}/${totalPages}`)
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(true)
+    );
+
+    navRow.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`menu_next_${newPage}`)
+        .setLabel("下一頁 ➡️")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(newPage === totalPages - 1)
+    );
+
+    rows.push(navRow);
+
+    // 更新消息
+    await interaction.update({
+      embeds: [embed],
+      components: rows,
+    });
+
+    console.log(
+      `✅ 菜單分頁成功: ${interaction.user.tag} 切換到第 ${newPage + 1} 頁`
+    );
+  } catch (error) {
+    console.error("❌ 處理分頁導航時發生錯誤:", error);
+    try {
+      await interaction.deferUpdate();
+    } catch (updateError) {
+      console.error("❌ 無法更新互動:", updateError);
+    }
+  }
+}
+
+// 补充缺少的开启频道函数（如果也缺少的话）
+async function lightningOpenChannel(channel) {
+  if (currentState === "open") return;
+
+  console.log(`⚡ 閃電開啟頻道...`);
+  const startTime = Date.now();
+
+  try {
+    // 1. 設定所有人可以連接的權限
+    const everyonePermPromise = channel.permissionOverwrites.edit(
+      channel.guild.roles.everyone,
+      {
+        [PermissionFlagsBits.Connect]: true,
+      }
+    );
+
+    // 2. 確保指定用戶有連接權限
+    const userPermPromises = CONFIG.SPECIAL_USER_IDS.map(async (userId) => {
+      try {
+        await channel.permissionOverwrites.edit(userId.trim(), {
+          [PermissionFlagsBits.Connect]: true,
+        });
+      } catch (err) {
+        console.log(`設定用戶 ${userId} 權限失敗: ${err.message}`);
+      }
+    });
+
+    // 3. 並行執行權限設定
+    await Promise.allSettled([
+      Promise.race([
+        everyonePermPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("權限設定超時")), 5000)
+        ),
+      ]),
+      ...userPermPromises,
+    ]);
+
+    console.log(`⚡ 權限設定完成 (${Date.now() - startTime}ms)`);
+
+    // 4. 使用背景改名來避免阻塞
+    ultraManager.backgroundRename(channel, CONFIG.OPEN_NAME);
+
+    // 5. 更新狀態
+    currentState = "open";
+    console.log(`⚡ 頻道開啟完成 (總耗時: ${Date.now() - startTime}ms)`);
+  } catch (error) {
+    console.error(`❌ 開啟頻道失敗: ${error.message}`);
   }
 }
 

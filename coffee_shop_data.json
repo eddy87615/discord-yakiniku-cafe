@@ -1,10 +1,10 @@
 {
   "users": {
     "836447451324874772": {
-      "money": 795,
+      "money": 840,
       "points": 3,
       "lastDaily": 1750131896823,
-      "totalEarned": 1310,
+      "totalEarned": 1355,
       "totalSpent": 515,
       "purchaseHistory": [
         {
@@ -52,10 +52,10 @@
       "lastVoiceTime": 0
     },
     "590477269429125120": {
-      "money": 225,
+      "money": 265,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 225,
+      "totalEarned": 265,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750128792835,
@@ -72,10 +72,10 @@
       "lastVoiceTime": 0
     },
     "493694033202511883": {
-      "money": 255,
+      "money": 350,
       "points": 1,
       "lastDaily": 0,
-      "totalEarned": 255,
+      "totalEarned": 350,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -98,10 +98,10 @@
       "lastVoiceTime": 0
     },
     "1022888696443326528": {
-      "money": 40,
+      "money": 45,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 40,
+      "totalEarned": 45,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750129019315,
@@ -118,10 +118,10 @@
       "lastVoiceTime": 0
     },
     "325892529637818370": {
-      "money": 10,
+      "money": 110,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 10,
+      "lastDaily": 1750219870614,
+      "totalEarned": 110,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750130068462,
@@ -174,10 +174,10 @@
       "lastVoiceTime": 0
     },
     "330755940594876429": {
-      "money": 55,
+      "money": 95,
       "points": 2,
       "lastDaily": 1750214214262,
-      "totalEarned": 175,
+      "totalEarned": 215,
       "totalSpent": 120,
       "purchaseHistory": [
         {
@@ -246,10 +246,10 @@
       "lastVoiceTime": 0
     },
     "528442516584792074": {
-      "money": 10,
+      "money": 110,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 10,
+      "lastDaily": 1750219854723,
+      "totalEarned": 110,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750133005811,
@@ -276,23 +276,105 @@
       "lastVoiceTime": 0
     },
     "277776605558996992": {
-      "money": 10,
+      "money": 70,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 10,
-      "totalSpent": 0,
-      "purchaseHistory": [],
+      "lastDaily": 1750219823234,
+      "totalEarned": 120,
+      "totalSpent": 50,
+      "purchaseHistory": [
+        {
+          "item": "請客: 美式咖啡 (給 伈伈)",
+          "price": 50,
+          "time": 1750219888507
+        }
+      ],
       "joinTime": 1750213855617,
       "lastVoiceTime": 0
     },
     "867397559261331456": {
-      "money": 60,
+      "money": 200,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 60,
+      "lastDaily": 1750219866212,
+      "totalEarned": 200,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750213905426,
+      "lastVoiceTime": 0
+    },
+    "694240606800838657": {
+      "money": 55,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 55,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750219794421,
+      "lastVoiceTime": 0
+    },
+    "559968200767307796": {
+      "money": 35,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 35,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750219817197,
+      "lastVoiceTime": 0
+    },
+    "461137872007987228": {
+      "money": 30,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 30,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750219850646,
+      "lastVoiceTime": 0
+    },
+    "483174413353615380": {
+      "money": 30,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 30,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750219850649,
+      "lastVoiceTime": 0
+    },
+    "1209869337494691960": {
+      "money": 100,
+      "points": 0,
+      "lastDaily": 1750219863636,
+      "totalEarned": 100,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750219863634,
+      "lastVoiceTime": 0
+    },
+    "355707326872682496": {
+      "money": 100,
+      "points": 0,
+      "lastDaily": 1750219865921,
+      "totalEarned": 100,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750219865919,
+      "lastVoiceTime": 0
+    },
+    "427277356353191937": {
+      "money": 0,
+      "points": 1,
+      "lastDaily": 0,
+      "totalEarned": 0,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 美式咖啡 (來自 蓮)",
+          "price": 0,
+          "time": 1750219888507
+        }
+      ],
+      "joinTime": 1750219888505,
       "lastVoiceTime": 0
     }
   },
@@ -368,7 +450,7 @@
       "image": "🍪"
     }
   ],
-  "shopAccount": 515,
+  "shopAccount": 565,
   "settings": {
     "managerRoleId": "1384346151431438529",
     "menuChannelId": "1383993054070964224",
@@ -439,10 +521,11 @@
   ],
   "dailyStats": {
     "date": "Wed Jun 18 2025",
-    "sales": 200,
+    "sales": 250,
     "customers": [
       "493694033202511883",
-      "836447451324874772"
+      "836447451324874772",
+      "427277356353191937"
     ]
   }
 }
