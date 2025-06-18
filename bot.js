@@ -1394,6 +1394,7 @@ async function handleRefundCommand(interaction) {
 }
 
 // 發布菜單指令（僅店長）
+// 修復後的發布菜單指令處理函數
 async function handlePublishMenuCommand(interaction) {
   if (
     !coffeeShop.isManager(interaction.member) &&
@@ -1407,7 +1408,7 @@ async function handlePublishMenuCommand(interaction) {
 
   if (!coffeeShop.data.settings.menuChannelId) {
     return await interaction.reply({
-      content: "❌ 請先設定菜單發布頻道！",
+      content: "❌ 請先設定菜單發布頻道！使用 `/設定 菜單頻道 #頻道名稱`",
       ephemeral: true,
     });
   }
@@ -1420,76 +1421,348 @@ async function handlePublishMenuCommand(interaction) {
     });
   }
 
-  const channel = interaction.guild.channels.cache.get(
-    coffeeShop.data.settings.menuChannelId
-  );
-  if (!channel) {
+  try {
+    const channel = interaction.guild.channels.cache.get(
+      coffeeShop.data.settings.menuChannelId
+    );
+
+    if (!channel) {
+      return await interaction.reply({
+        content: "❌ 找不到菜單頻道！請重新設定菜單頻道。",
+        ephemeral: true,
+      });
+    }
+
+    // 檢查機器人在該頻道的權限
+    const botPermissions = channel.permissionsFor(interaction.guild.members.me);
+    if (
+      !botPermissions.has(["SendMessages", "EmbedLinks", "UseExternalEmojis"])
+    ) {
+      return await interaction.reply({
+        content:
+          "❌ 機器人在目標頻道沒有足夠權限！需要：發送訊息、嵌入連結、使用外部表情符號",
+        ephemeral: true,
+      });
+    }
+
+    // 創建菜單 Embed
+    const embed = new EmbedBuilder()
+      .setTitle("☕ 燒肉Cafe 菜單")
+      .setColor("#8B4513")
+      .setDescription(
+        "點擊下方按鈕購買你喜歡的飲品和甜點！\n💰 購買後會立即扣款並獲得集點\n⭐ 每購買一次獲得 1 點，集滿 10 點可兌換獎勵"
+      )
+      .setTimestamp()
+      .setFooter({ text: "營業時間：店長在線時 | 點擊按鈕即可購買" });
+
+    // 在 embed 中顯示所有菜單項目
+    coffeeShop.data.menu.forEach((item) => {
+      embed.addFields({
+        name: `${item.emoji || "☕"} ${item.name}`,
+        value: `💰 ${item.price} 元`,
+        inline: true,
+      });
+    });
+
+    // 創建按鈕行數組
+    const rows = [];
+    const maxButtonsPerRow = 2; // Discord 建議每行最多2個按鈕以保持美觀
+    const maxRows = 5; // Discord 限制最多5行
+
+    console.log(
+      `📋 開始創建菜單按鈕，共 ${coffeeShop.data.menu.length} 個項目`
+    );
+
+    for (
+      let i = 0;
+      i < coffeeShop.data.menu.length && rows.length < maxRows;
+      i += maxButtonsPerRow
+    ) {
+      const row = new ActionRowBuilder();
+
+      // 為當前行添加按鈕
+      for (
+        let j = i;
+        j < Math.min(i + maxButtonsPerRow, coffeeShop.data.menu.length);
+        j++
+      ) {
+        const item = coffeeShop.data.menu[j];
+
+        // 驗證按鈕數據
+        if (!item.id || !item.name || !item.price) {
+          console.log(`⚠️ 跳過無效的菜單項目:`, item);
+          continue;
+        }
+
+        console.log(`🔘 創建按鈕: ${item.id} - ${item.name} - ${item.price}元`);
+
+        // 確保按鈕標籤不超過 80 字符限制
+        const buttonLabel = `${item.emoji || "☕"} ${item.name} - ${
+          item.price
+        }元`;
+        const truncatedLabel =
+          buttonLabel.length > 80
+            ? buttonLabel.substring(0, 77) + "..."
+            : buttonLabel;
+
+        const button = new ButtonBuilder()
+          .setCustomId(`buy_${item.id}`)
+          .setLabel(truncatedLabel)
+          .setStyle(ButtonStyle.Primary);
+
+        row.addComponents(button);
+      }
+
+      // 只有當行中有按鈕時才添加到 rows
+      if (row.components.length > 0) {
+        rows.push(row);
+        console.log(
+          `📝 創建第 ${rows.length} 行，包含 ${row.components.length} 個按鈕`
+        );
+      }
+    }
+
+    // 檢查是否成功創建了按鈕
+    if (rows.length === 0) {
+      console.log(`❌ 沒有創建任何按鈕！菜單項目:`, coffeeShop.data.menu);
+      return await interaction.reply({
+        content:
+          "❌ 無法創建菜單按鈕！請檢查菜單項目是否有效。使用 `/除錯菜單` 查看詳細資訊。",
+        ephemeral: true,
+      });
+    }
+
+    console.log(
+      `✅ 成功創建 ${rows.length} 行按鈕，總計 ${rows.reduce(
+        (sum, row) => sum + row.components.length,
+        0
+      )} 個按鈕`
+    );
+
+    // 如果菜單項目過多，添加警告
+    if (coffeeShop.data.menu.length > maxRows * maxButtonsPerRow) {
+      embed.addFields({
+        name: "⚠️ 注意",
+        value: `菜單項目較多，僅顯示前 ${
+          maxRows * maxButtonsPerRow
+        } 個項目的按鈕。`,
+        inline: false,
+      });
+    }
+
+    // 發送菜單到指定頻道
+    const sentMessage = await channel.send({
+      embeds: [embed],
+      components: rows,
+    });
+
+    console.log(
+      `✅ 菜單已發布到頻道 ${channel.name}，訊息ID: ${sentMessage.id}`
+    );
+
+    // 回覆成功訊息
+    await interaction.reply({
+      content: `✅ 菜單已成功發布到 ${channel}！\n📊 包含 ${
+        coffeeShop.data.menu.length
+      } 個項目，${rows.reduce(
+        (sum, row) => sum + row.components.length,
+        0
+      )} 個按鈕`,
+      ephemeral: true,
+    });
+  } catch (error) {
+    console.error("❌ 發布菜單時發生錯誤:", error);
+
+    let errorMessage = "❌ 發布菜單時發生錯誤！";
+
+    if (error.code === 50013) {
+      errorMessage += " 機器人缺少權限。";
+    } else if (error.code === 50035) {
+      errorMessage += " 菜單數據格式錯誤。";
+    } else {
+      errorMessage += ` 錯誤詳情: ${error.message}`;
+    }
+
+    await interaction.reply({
+      content: errorMessage,
+      ephemeral: true,
+    });
+  }
+}
+
+// 修復後的除錯菜單指令 - 添加更多診斷資訊
+async function handleDebugMenuCommand(interaction) {
+  if (
+    !coffeeShop.isManager(interaction.member) &&
+    !coffeeShop.isAdmin(interaction.member)
+  ) {
     return await interaction.reply({
-      content: "❌ 找不到菜單頻道！",
+      content: "❌ 只有店長和管理員可以使用除錯功能！",
       ephemeral: true,
     });
   }
 
   const embed = new EmbedBuilder()
-    .setTitle("☕ 燒肉Cafe 菜單")
-    .setColor("#8B4513")
-    .setDescription(
-      "點擊下方按鈕購買你喜歡的飲品和甜點！\n💰 購買後會立即扣款並獲得集點\n⭐ 每購買一次獲得 1 點，集滿 10 點可兌換獎勵"
-    )
-    .setTimestamp()
-    .setFooter({ text: "營業時間：店長在線時" });
+    .setTitle("🔍 菜單除錯資訊")
+    .setColor("#FFA500")
+    .addFields(
+      {
+        name: "📊 菜單項目數量",
+        value: `${coffeeShop.data.menu.length} 個`,
+        inline: true,
+      },
+      {
+        name: "🏪 咖啡廳戶頭",
+        value: `${coffeeShop.data.shopAccount} 元`,
+        inline: true,
+      },
+      {
+        name: "📺 菜單頻道",
+        value: coffeeShop.data.settings.menuChannelId || "未設定",
+        inline: true,
+      }
+    );
 
-  // 先在菜單 embed 中顯示所有項目
-  coffeeShop.data.menu.forEach((item) => {
+  // 檢查菜單頻道是否有效
+  if (coffeeShop.data.settings.menuChannelId) {
+    const menuChannel = interaction.guild.channels.cache.get(
+      coffeeShop.data.settings.menuChannelId
+    );
+
+    if (menuChannel) {
+      const botPermissions = menuChannel.permissionsFor(
+        interaction.guild.members.me
+      );
+      const hasRequiredPerms = botPermissions.has([
+        "SendMessages",
+        "EmbedLinks",
+        "UseExternalEmojis",
+      ]);
+
+      embed.addFields({
+        name: "🔑 頻道權限檢查",
+        value: hasRequiredPerms ? "✅ 權限正常" : "❌ 權限不足",
+        inline: true,
+      });
+    } else {
+      embed.addFields({
+        name: "🔑 頻道狀態",
+        value: "❌ 找不到設定的頻道",
+        inline: true,
+      });
+    }
+  }
+
+  // 詳細檢查每個菜單項目
+  if (coffeeShop.data.menu.length > 0) {
+    let menuDetails = "";
+    let validItems = 0;
+    let invalidItems = 0;
+
+    coffeeShop.data.menu.forEach((item, index) => {
+      const isValid =
+        item.id &&
+        item.name &&
+        typeof item.price === "number" &&
+        item.price > 0;
+
+      if (isValid) {
+        validItems++;
+      } else {
+        invalidItems++;
+      }
+
+      const status = isValid ? "✅" : "❌";
+      menuDetails += `${status} ${index + 1}. **${
+        item.name || "無名稱"
+      }** (ID: \`${item.id || "無ID"}\`)\n`;
+      menuDetails += `   ${item.emoji || "☕"} ${item.price || "無價格"}元\n`;
+
+      if (!isValid) {
+        menuDetails += `   ⚠️ 問題: ${!item.id ? "缺少ID " : ""}${
+          !item.name ? "缺少名稱 " : ""
+        }${
+          typeof item.price !== "number" || item.price <= 0 ? "價格無效" : ""
+        }\n`;
+      }
+      menuDetails += "\n";
+    });
+
+    embed.addFields(
+      {
+        name: "📊 項目狀態統計",
+        value: `✅ 有效: ${validItems} 個\n❌ 無效: ${invalidItems} 個`,
+        inline: true,
+      },
+      {
+        name: "📋 菜單詳細資料",
+        value: menuDetails.slice(0, 1024),
+        inline: false,
+      }
+    );
+
+    // 預測按鈕創建情況
+    const maxButtons = 10; // 5行 x 2個按鈕
+    const buttonCount = Math.min(validItems, maxButtons);
     embed.addFields({
-      name: `${item.emoji || "☕"} ${item.name}`,
-      value: `💰 ${item.price} 元`,
+      name: "🔘 按鈕預測",
+      value: `預計可創建 ${buttonCount} 個按鈕 (最多 ${maxButtons} 個)`,
       inline: true,
     });
-  });
-
-  // 創建按鈕
-  const rows = [];
-  const buttonsPerRow = 2;
-
-  console.log(`📋 準備創建菜單按鈕，共 ${coffeeShop.data.menu.length} 個項目`);
-
-  for (let i = 0; i < coffeeShop.data.menu.length; i += buttonsPerRow) {
-    const row = new ActionRowBuilder();
-
-    for (
-      let j = i;
-      j < Math.min(i + buttonsPerRow, coffeeShop.data.menu.length);
-      j++
-    ) {
-      const item = coffeeShop.data.menu[j];
-      console.log(`🔘 創建按鈕: ${item.id} - ${item.name}`);
-
-      row.addComponents(
-        new ButtonBuilder()
-          .setCustomId(`buy_${item.id}`)
-          .setLabel(`${item.emoji || "☕"} ${item.name} - ${item.price}元`)
-          .setStyle(ButtonStyle.Primary)
-      );
-    }
-
-    if (row.components.length > 0) {
-      rows.push(row);
-    }
+  } else {
+    embed.addFields({
+      name: "📋 菜單狀態",
+      value: "❌ 目前沒有任何菜單項目\n建議使用 `/快速設定菜單` 創建預設菜單",
+      inline: false,
+    });
   }
 
-  console.log(`📝 創建了 ${rows.length} 行按鈕`);
-
-  if (rows.length > 5) {
-    console.log(`⚠️ 按鈕行數超過限制，只顯示前5行`);
-    rows.splice(5);
+  // 檢查資料檔案
+  try {
+    const stats = fs.statSync(coffeeShop.dataPath);
+    embed.addFields({
+      name: "💾 資料檔案",
+      value: `檔案大小: ${(stats.size / 1024).toFixed(
+        2
+      )} KB\n最後修改: ${stats.mtime.toLocaleString("zh-TW")}`,
+      inline: false,
+    });
+  } catch (error) {
+    embed.addFields({
+      name: "💾 資料檔案",
+      value: "❌ 無法讀取檔案資訊",
+      inline: false,
+    });
   }
 
-  await channel.send({ embeds: [embed], components: rows });
-  await interaction.reply({
-    content: "✅ 菜單已發布到指定頻道！",
-    ephemeral: true,
-  });
+  // 添加建議操作
+  let suggestions = [];
+
+  if (coffeeShop.data.menu.length === 0) {
+    suggestions.push("• 使用 `/快速設定菜單` 創建預設菜單項目");
+  }
+
+  if (!coffeeShop.data.settings.menuChannelId) {
+    suggestions.push("• 使用 `/設定 菜單頻道 #頻道名稱` 設定發布頻道");
+  }
+
+  if (invalidItems > 0) {
+    suggestions.push("• 檢查並修復無效的菜單項目");
+  }
+
+  if (validItems > 0 && coffeeShop.data.settings.menuChannelId) {
+    suggestions.push("• 使用 `/發布菜單` 重新發布互動式菜單");
+  }
+
+  if (suggestions.length > 0) {
+    embed.addFields({
+      name: "💡 建議操作",
+      value: suggestions.join("\n"),
+      inline: false,
+    });
+  }
+
+  await interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
 // 編輯菜單指令（僅店長）
