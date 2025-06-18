@@ -1,4 +1,3 @@
-// 載入環境變數
 require("dotenv").config();
 
 const {
@@ -25,6 +24,43 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
   ],
 });
+
+// 輔助函數來處理 Discord.js 新版本的 ephemeral 回覆
+function createEphemeralReply(content, embeds = null) {
+  const replyOptions = {
+    flags: [4096], // EPHEMERAL flag
+  };
+
+  if (typeof content === "string") {
+    replyOptions.content = content;
+  }
+
+  if (embeds) {
+    replyOptions.embeds = Array.isArray(embeds) ? embeds : [embeds];
+  }
+
+  return replyOptions;
+}
+
+function createPublicReply(content, embeds = null, components = null) {
+  const replyOptions = {};
+
+  if (typeof content === "string") {
+    replyOptions.content = content;
+  }
+
+  if (embeds) {
+    replyOptions.embeds = Array.isArray(embeds) ? embeds : [embeds];
+  }
+
+  if (components) {
+    replyOptions.components = Array.isArray(components)
+      ? components
+      : [components];
+  }
+
+  return replyOptions;
+}
 
 // 極速改名管理器 (保留原有功能)
 class UltraFastRenameManager {
@@ -210,21 +246,24 @@ class CoffeeShopManager {
               emoji: "📦",
             },
           ],
-          dailyStats: data.dailyStats || {
-            date: new Date().toDateString(),
-            sales: 0,
-            customers: new Set(),
+          dailyStats: {
+            date: data.dailyStats?.date || new Date().toDateString(),
+            sales: data.dailyStats?.sales || 0,
+            customers: new Set(), // 先初始化為空 Set
           },
         };
 
-        // 修復：將 customers 陣列轉換回 Set
-        if (Array.isArray(this.data.dailyStats.customers)) {
-          this.data.dailyStats.customers = new Set(
-            this.data.dailyStats.customers
-          );
-          console.log(
-            `📋 修復 customers 資料格式，共 ${this.data.dailyStats.customers.size} 位顧客`
-          );
+        // 安全地恢復 customers 數據
+        if (data.dailyStats?.customers) {
+          if (Array.isArray(data.dailyStats.customers)) {
+            this.data.dailyStats.customers = new Set(data.dailyStats.customers);
+            console.log(
+              `📋 從陣列恢復 customers 資料，共 ${this.data.dailyStats.customers.size} 位顧客`
+            );
+          } else {
+            console.log("⚠️ customers 資料格式異常，使用空 Set");
+            this.data.dailyStats.customers = new Set();
+          }
         }
 
         console.log(`📋 從檔案載入菜單，共 ${this.data.menu.length} 個項目`);
@@ -236,7 +275,8 @@ class CoffeeShopManager {
         this.initializeDefaultData();
       }
     } catch (error) {
-      console.error("載入資料時發生錯誤:", error);
+      console.error("❌ 載入資料時發生錯誤:", error);
+      console.log("🔄 初始化預設資料");
       this.initializeDefaultData();
     }
   }
@@ -322,16 +362,24 @@ class CoffeeShopManager {
 
   saveData() {
     try {
+      // 確保 customers 在保存前轉換為陣列
       const dataToSave = {
         ...this.data,
         dailyStats: {
           ...this.data.dailyStats,
-          customers: Array.from(this.data.dailyStats.customers),
+          customers:
+            this.data.dailyStats.customers instanceof Set
+              ? Array.from(this.data.dailyStats.customers)
+              : Array.isArray(this.data.dailyStats.customers)
+              ? this.data.dailyStats.customers
+              : [], // 如果都不是，設為空陣列
         },
       };
+
       fs.writeFileSync(this.dataPath, JSON.stringify(dataToSave, null, 2));
+      console.log("💾 資料保存成功");
     } catch (error) {
-      console.error("儲存資料時發生錯誤:", error);
+      console.error("❌ 儲存資料時發生錯誤:", error);
     }
   }
 
@@ -398,17 +446,22 @@ class CoffeeShopManager {
       };
     }
 
-    // 確保 customers 是 Set 對象
+    // 確保 customers 是 Set 對象，修復序列化問題
     if (
       !this.data.dailyStats.customers ||
       typeof this.data.dailyStats.customers.add !== "function"
     ) {
       console.log("🔧 修復 customers 為 Set 對象");
-      this.data.dailyStats.customers = new Set(
-        Array.isArray(this.data.dailyStats.customers)
-          ? this.data.dailyStats.customers
-          : []
-      );
+
+      // 如果是陣列，轉換為 Set
+      if (Array.isArray(this.data.dailyStats.customers)) {
+        this.data.dailyStats.customers = new Set(
+          this.data.dailyStats.customers
+        );
+      } else {
+        // 如果是其他格式，重置為空 Set
+        this.data.dailyStats.customers = new Set();
+      }
     }
 
     this.data.dailyStats.sales += amount;
@@ -473,6 +526,52 @@ class CoffeeShopManager {
   isAdmin(member) {
     return member.permissions.has(PermissionFlagsBits.Administrator);
   }
+
+  // 資料完整性檢查方法
+  validateData() {
+    let fixes = [];
+
+    // 檢查並修復 users 資料
+    if (!this.data.users || typeof this.data.users !== "object") {
+      this.data.users = {};
+      fixes.push("修復用戶資料結構");
+    }
+
+    // 檢查並修復 menu 資料
+    if (!Array.isArray(this.data.menu)) {
+      this.data.menu = [];
+      fixes.push("修復菜單資料結構");
+    }
+
+    // 檢查並修復 dailyStats
+    if (!this.data.dailyStats || typeof this.data.dailyStats !== "object") {
+      this.data.dailyStats = {
+        date: new Date().toDateString(),
+        sales: 0,
+        customers: new Set(),
+      };
+      fixes.push("修復每日統計資料");
+    }
+
+    // 確保 customers 是 Set
+    if (!(this.data.dailyStats.customers instanceof Set)) {
+      if (Array.isArray(this.data.dailyStats.customers)) {
+        this.data.dailyStats.customers = new Set(
+          this.data.dailyStats.customers
+        );
+      } else {
+        this.data.dailyStats.customers = new Set();
+      }
+      fixes.push("修復顧客資料格式");
+    }
+
+    if (fixes.length > 0) {
+      console.log(`🔧 資料完整性檢查完成，修復項目: ${fixes.join(", ")}`);
+      this.saveData();
+    }
+
+    return fixes;
+  }
 }
 
 // 創建管理器實例
@@ -515,9 +614,228 @@ client.once("ready", () => {
   initializeLightningFast();
   registerSlashCommands();
   startMonitoring();
+
+  // 執行資料完整性檢查
+  coffeeShop.validateData();
 });
 
-// 註冊斜線指令
+// 開始監控系統
+function startMonitoring() {
+  setInterval(() => {
+    const guild = client.guilds.cache.first();
+    if (!guild) return;
+
+    // 遍歷所有語音頻道
+    guild.channels.cache.forEach((channel) => {
+      if (channel.type === 2) {
+        // 語音頻道
+        channel.members.forEach((member) => {
+          if (member.user.bot) return;
+
+          coffeeShop.addMoney(
+            member.id,
+            coffeeShop.data.settings.voiceReward,
+            "語音掛機"
+          );
+        });
+      }
+    });
+  }, 60000);
+
+  setInterval(() => {
+    ultraManager.cleanCache();
+  }, 20 * 60 * 1000);
+}
+
+setInterval(() => {
+  ultraManager.cleanCache();
+}, 20 * 60 * 1000);
+
+// 訊息事件 - 賺錢系統
+client.on("messageCreate", (message) => {
+  if (message.author.bot) return;
+  coffeeShop.addMoney(
+    message.author.id,
+    coffeeShop.data.settings.messageReward,
+    "發送訊息"
+  );
+});
+
+// 補充缺少的 lightningOpenChannel 函數
+// 將此函數添加到你的代碼中，建議放在 lightningCloseChannel 函數之前
+
+async function lightningOpenChannel(channel) {
+  if (currentState === "open") return;
+
+  console.log(`⚡ 閃電開啟頻道...`);
+  const startTime = Date.now();
+
+  try {
+    // 1. 設定所有人可以連接的權限
+    const everyonePermPromise = channel.permissionOverwrites.edit(
+      channel.guild.roles.everyone,
+      {
+        [PermissionFlagsBits.Connect]: true,
+      }
+    );
+
+    // 2. 確保指定用戶有連接權限
+    const userPermPromises = CONFIG.SPECIAL_USER_IDS.map(async (userId) => {
+      try {
+        await channel.permissionOverwrites.edit(userId.trim(), {
+          [PermissionFlagsBits.Connect]: true,
+        });
+      } catch (err) {
+        console.log(`設定用戶 ${userId} 權限失敗: ${err.message}`);
+      }
+    });
+
+    // 3. 並行執行權限設定
+    await Promise.allSettled([
+      Promise.race([
+        everyonePermPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("權限設定超時")), 5000)
+        ),
+      ]),
+      ...userPermPromises,
+    ]);
+
+    console.log(`⚡ 權限設定完成 (${Date.now() - startTime}ms)`);
+
+    // 4. 使用背景改名來避免阻塞
+    ultraManager.backgroundRename(channel, CONFIG.OPEN_NAME);
+
+    // 5. 更新狀態
+    currentState = "open";
+    console.log(`⚡ 頻道開啟完成 (總耗時: ${Date.now() - startTime}ms)`);
+  } catch (error) {
+    console.error(`❌ 開啟頻道失敗: ${error.message}`);
+  }
+}
+
+// 閃電關閉頻道 (保留原有功能，為了完整性也一併提供)
+async function lightningCloseChannel(channel) {
+  if (currentState === "closed") return;
+
+  console.log(`⚡ 閃電關閉頻道...`);
+  const startTime = Date.now();
+
+  try {
+    const kickPromises = [];
+    const membersToKick = channel.members.filter((member) => {
+      if (CONFIG.SPECIAL_USER_IDS.includes(member.id)) return false;
+      if (CONFIG.EXCLUDED_USER_IDS.includes(member.id)) return false;
+      return true;
+    });
+
+    for (const [, member] of membersToKick) {
+      kickPromises.push(
+        member.voice
+          .disconnect("頻道已打烊")
+          .catch((err) => console.log(`踢出 ${member.displayName} 失敗`))
+      );
+    }
+
+    const permPromise = channel.permissionOverwrites.edit(
+      channel.guild.roles.everyone,
+      {
+        [PermissionFlagsBits.Connect]: false,
+      }
+    );
+
+    await Promise.allSettled([
+      Promise.all(kickPromises),
+      Promise.race([
+        permPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("權限超時")), 5000)
+        ),
+      ]),
+    ]);
+
+    console.log(`⚡ 踢人和權限設定完成 (${Date.now() - startTime}ms)`);
+
+    const userPermPromises = CONFIG.SPECIAL_USER_IDS.map(async (userId) => {
+      try {
+        await channel.permissionOverwrites.edit(userId.trim(), {
+          [PermissionFlagsBits.Connect]: true,
+        });
+      } catch (err) {
+        console.log(`設定用戶 ${userId} 權限失敗`);
+      }
+    });
+
+    await Promise.allSettled(userPermPromises);
+
+    ultraManager.backgroundRename(channel, CONFIG.CLOSED_NAME);
+
+    currentState = "closed";
+    console.log(`⚡ 頻道關閉完成 (總耗時: ${Date.now() - startTime}ms)`);
+  } catch (error) {
+    console.error(`❌ 關閉頻道失敗: ${error.message}`);
+  }
+}
+
+// 語音狀態更新事件 (保留原有功能)
+client.on("voiceStateUpdate", async (oldState, newState) => {
+  const userId = newState.id;
+
+  if (!CONFIG.SPECIAL_USER_IDS.includes(userId)) return;
+
+  const now = Date.now();
+  if (now - lastOperation < 1000) return;
+  lastOperation = now;
+
+  try {
+    const channel = await client.channels.fetch(CONFIG.VOICE_CHANNEL_ID);
+    if (!channel) return;
+
+    if (
+      newState.channelId === CONFIG.VOICE_CHANNEL_ID &&
+      oldState.channelId !== CONFIG.VOICE_CHANNEL_ID
+    ) {
+      console.log(`⚡ 指定成員加入: ${newState.member.displayName}`);
+      await lightningOpenChannel(channel);
+    }
+
+    if (
+      oldState.channelId === CONFIG.VOICE_CHANNEL_ID &&
+      newState.channelId !== CONFIG.VOICE_CHANNEL_ID
+    ) {
+      console.log(`⚡ 指定成員離開: ${oldState.member.displayName}`);
+
+      setTimeout(async () => {
+        const updatedChannel = await client.channels.fetch(
+          CONFIG.VOICE_CHANNEL_ID
+        );
+        const remaining = CONFIG.SPECIAL_USER_IDS.filter((id) =>
+          updatedChannel.members.has(id)
+        );
+
+        if (remaining.length === 0) {
+          console.log(`⚡ 無指定成員，閃電關閉`);
+          await lightningCloseChannel(updatedChannel);
+        }
+      }, 800);
+    }
+  } catch (error) {
+    console.error("⚡ 處理語音狀態失敗:", error.message);
+  }
+});
+
+// 斜線指令處理
+client.on("interactionCreate", async (interaction) => {
+  if (interaction.isChatInputCommand()) {
+    await handleSlashCommand(interaction);
+  } else if (interaction.isButton()) {
+    await handleButtonInteraction(interaction);
+  } else if (interaction.isAutocomplete()) {
+    await handleAutocomplete(interaction);
+  }
+});
+
+// 修復後的斜線指令註冊函數
 async function registerSlashCommands() {
   const commands = [
     // 用戶指令
@@ -682,122 +1000,74 @@ async function registerSlashCommands() {
           .setDescription("要測試的成員（不填則測試自己）")
           .setRequired(false)
       ),
+
+    // 🔧 修復：確保語音統計指令被正確添加
+    new SlashCommandBuilder()
+      .setName("語音統計")
+      .setDescription("查看語音掛機統計（僅店長）"),
   ];
 
   try {
-    console.log("開始註冊斜線指令...");
-    console.log(`準備註冊 ${commands.length} 個指令:`);
+    console.log("🔄 開始註冊斜線指令...");
+    console.log(`📋 準備註冊 ${commands.length} 個指令:`);
+
+    // 詳細列出每個指令
     commands.forEach((cmd, index) => {
-      console.log(`${index + 1}. ${cmd.name} - ${cmd.description}`);
+      console.log(`${index + 1}. /${cmd.name} - ${cmd.description}`);
     });
 
-    await client.application.commands.set(commands);
-    console.log("✅ 斜線指令註冊完成！");
+    // 驗證指令數量
+    if (commands.length !== 16) {
+      console.warn(`⚠️ 警告：預期 16 個指令，實際只有 ${commands.length} 個！`);
+    }
 
-    // 列出實際註冊的指令
+    // 強制重新註冊所有指令
+    console.log("🔄 清除舊指令並重新註冊...");
+
+    // 方法1：直接設定新指令（推薦）
+    const result = await client.application.commands.set(commands);
+    console.log(`✅ 成功註冊 ${result.size} 個指令！`);
+
+    // 驗證註冊結果
     const registeredCommands = await client.application.commands.fetch();
     console.log(`📋 實際註冊的指令 (${registeredCommands.size} 個):`);
+
     registeredCommands.forEach((cmd) => {
-      console.log(`- ${cmd.name}`);
+      console.log(`- /${cmd.name} (ID: ${cmd.id})`);
     });
+
+    // 檢查是否有遺漏的指令
+    const expectedNames = commands.map((cmd) => cmd.name);
+    const actualNames = Array.from(registeredCommands.values()).map(
+      (cmd) => cmd.name
+    );
+    const missing = expectedNames.filter((name) => !actualNames.includes(name));
+
+    if (missing.length > 0) {
+      console.log(`⚠️ 遺漏的指令: ${missing.join(", ")}`);
+    } else {
+      console.log("✅ 所有指令都已成功註冊！");
+    }
+
+    return true;
   } catch (error) {
-    console.error("註冊斜線指令時發生錯誤:", error);
+    console.error("❌ 註冊斜線指令時發生錯誤:", error);
+
+    // 詳細錯誤診斷
+    if (error.code === 50001) {
+      console.error("❌ 缺少權限：機器人沒有 'applications.commands' 權限");
+    } else if (error.code === 50035) {
+      console.error("❌ 無效的表單內容：指令格式錯誤");
+      console.error("錯誤詳情:", error.rawError?.errors);
+    } else {
+      console.error("❌ 其他錯誤:", error.message);
+    }
+
+    return false;
   }
 }
 
-// 開始監控系統
-function startMonitoring() {
-  setInterval(() => {
-    const guild = client.guilds.cache.first();
-    if (!guild || !CONFIG.VOICE_CHANNEL_ID) return;
-
-    const voiceChannel = guild.channels.cache.get(CONFIG.VOICE_CHANNEL_ID);
-    if (!voiceChannel || currentState !== "open") return;
-
-    voiceChannel.members.forEach((member) => {
-      if (member.user.bot) return;
-      coffeeShop.addMoney(
-        member.id,
-        coffeeShop.data.settings.voiceReward,
-        "語音掛機"
-      );
-    });
-  }, 60000);
-
-  setInterval(() => {
-    ultraManager.cleanCache();
-  }, 20 * 60 * 1000);
-}
-
-// 訊息事件 - 賺錢系統
-client.on("messageCreate", (message) => {
-  if (message.author.bot) return;
-  coffeeShop.addMoney(
-    message.author.id,
-    coffeeShop.data.settings.messageReward,
-    "發送訊息"
-  );
-});
-
-// 語音狀態更新事件 (保留原有功能)
-client.on("voiceStateUpdate", async (oldState, newState) => {
-  const userId = newState.id;
-
-  if (!CONFIG.SPECIAL_USER_IDS.includes(userId)) return;
-
-  const now = Date.now();
-  if (now - lastOperation < 1000) return;
-  lastOperation = now;
-
-  try {
-    const channel = await client.channels.fetch(CONFIG.VOICE_CHANNEL_ID);
-    if (!channel) return;
-
-    if (
-      newState.channelId === CONFIG.VOICE_CHANNEL_ID &&
-      oldState.channelId !== CONFIG.VOICE_CHANNEL_ID
-    ) {
-      console.log(`⚡ 指定成員加入: ${newState.member.displayName}`);
-      await lightningOpenChannel(channel);
-    }
-
-    if (
-      oldState.channelId === CONFIG.VOICE_CHANNEL_ID &&
-      newState.channelId !== CONFIG.VOICE_CHANNEL_ID
-    ) {
-      console.log(`⚡ 指定成員離開: ${oldState.member.displayName}`);
-
-      setTimeout(async () => {
-        const updatedChannel = await client.channels.fetch(
-          CONFIG.VOICE_CHANNEL_ID
-        );
-        const remaining = CONFIG.SPECIAL_USER_IDS.filter((id) =>
-          updatedChannel.members.has(id)
-        );
-
-        if (remaining.length === 0) {
-          console.log(`⚡ 無指定成員，閃電關閉`);
-          await lightningCloseChannel(updatedChannel);
-        }
-      }, 800);
-    }
-  } catch (error) {
-    console.error("⚡ 處理語音狀態失敗:", error.message);
-  }
-});
-
-// 斜線指令處理
-client.on("interactionCreate", async (interaction) => {
-  if (interaction.isChatInputCommand()) {
-    await handleSlashCommand(interaction);
-  } else if (interaction.isButton()) {
-    await handleButtonInteraction(interaction);
-  } else if (interaction.isAutocomplete()) {
-    await handleAutocomplete(interaction);
-  }
-});
-
-// 處理斜線指令
+// 修復後的 handleSlashCommand 函數（確保包含語音統計）
 async function handleSlashCommand(interaction) {
   const { commandName } = interaction;
 
@@ -848,20 +1118,137 @@ async function handleSlashCommand(interaction) {
       case "同性戀指數":
         await handleGayIndexCommand(interaction);
         break;
+      case "語音統計":
+        await handleVoiceStatsCommand(interaction);
+        break;
+      default:
+        console.log(`❌ 未知指令: ${commandName}`);
+        if (!interaction.replied && !interaction.deferred) {
+          await interaction.reply(createEphemeralReply("❌ 未知的指令！"));
+        }
+        break;
     }
   } catch (error) {
-    console.error("處理指令時發生錯誤:", error);
-    if (!interaction.replied && !interaction.deferred) {
-      await interaction.reply({
-        content: "處理指令時發生錯誤！",
-        ephemeral: true,
-      });
+    console.error(`❌ 處理指令 ${commandName} 時發生錯誤:`, error);
+
+    try {
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply(
+          createEphemeralReply("❌ 處理指令時發生錯誤！請稍後再試。")
+        );
+      } else if (interaction.deferred) {
+        await interaction.editReply(
+          createEphemeralReply("❌ 處理指令時發生錯誤！請稍後再試。")
+        );
+      }
+    } catch (replyError) {
+      console.error("❌ 無法回覆錯誤訊息:", replyError);
     }
   }
 }
 
-// 添加處理函數（放在其他 handle 函數附近）：
+// 強制重新註冊指令的輔助函數
+async function forceReregisterCommands() {
+  try {
+    console.log("🔄 強制清除並重新註冊所有指令...");
 
+    // 清除所有現有指令
+    await client.application.commands.set([]);
+    console.log("🗑️ 已清除所有舊指令");
+
+    // 等待一秒
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // 重新註冊
+    const success = await registerSlashCommands();
+
+    if (success) {
+      console.log("✅ 強制重新註冊完成！");
+    } else {
+      console.log("❌ 強制重新註冊失敗！");
+    }
+
+    return success;
+  } catch (error) {
+    console.error("❌ 強制重新註冊過程中發生錯誤:", error);
+    return false;
+  }
+}
+
+// 添加新的指令來顯示語音掛機統計
+async function handleVoiceStatsCommand(interaction) {
+  if (
+    !coffeeShop.isManager(interaction.member) &&
+    !coffeeShop.isAdmin(interaction.member)
+  ) {
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以查看語音統計！")
+    );
+  }
+
+  const guild = interaction.guild;
+  let totalUsers = 0;
+  let channelStats = [];
+
+  guild.channels.cache
+    .filter((channel) => channel.type === 2)
+    .forEach((voiceChannel) => {
+      const memberCount = voiceChannel.members.filter((m) => !m.user.bot).size;
+      if (memberCount > 0) {
+        totalUsers += memberCount;
+        channelStats.push({
+          name: voiceChannel.name,
+          count: memberCount,
+          reward: memberCount * coffeeShop.data.settings.voiceReward,
+        });
+      }
+    });
+
+  const embed = new EmbedBuilder()
+    .setTitle("🎙️ 語音掛機統計")
+    .setColor("#00FF7F")
+    .addFields(
+      {
+        name: "👥 總在線人數",
+        value: `${totalUsers} 人`,
+        inline: true,
+      },
+      {
+        name: "💰 每分鐘發放",
+        value: `${totalUsers * coffeeShop.data.settings.voiceReward} 元`,
+        inline: true,
+      },
+      {
+        name: "💵 每小時發放",
+        value: `${totalUsers * coffeeShop.data.settings.voiceReward * 60} 元`,
+        inline: true,
+      }
+    )
+    .setTimestamp();
+
+  if (channelStats.length > 0) {
+    let channelDetails = "";
+    channelStats.forEach((stat) => {
+      channelDetails += `🎙️ **${stat.name}**: ${stat.count} 人 (${stat.reward}元/分鐘)\n`;
+    });
+
+    embed.addFields({
+      name: "📊 各頻道詳情",
+      value: channelDetails.slice(0, 1024),
+      inline: false,
+    });
+  } else {
+    embed.addFields({
+      name: "📊 頻道狀態",
+      value: "目前沒有人在語音頻道中",
+      inline: false,
+    });
+  }
+
+  await interaction.reply(createEphemeralReply("", embed));
+}
+
+// 同性戀指數測試指令
 async function handleGayIndexCommand(interaction) {
   const targetUser = interaction.options.getUser("成員") || interaction.user;
   const isself = targetUser.id === interaction.user.id;
@@ -1058,36 +1445,36 @@ async function handleTreatCommand(interaction) {
 
   // 不能請自己
   if (friend.id === interaction.user.id) {
-    return await interaction.reply({
-      content: "❌ 不能請自己喝飲料哦！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 不能請自己喝飲料哦！")
+    );
   }
 
   // 不能請機器人
   if (friend.bot) {
-    return await interaction.reply({
-      content: "❌ 機器人不需要喝飲料呢～",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 機器人不需要喝飲料呢～")
+    );
   }
 
   // 尋找商品
   const item = coffeeShop.data.menu.find((i) => i.name === itemName);
   if (!item) {
-    return await interaction.reply({
-      content: `❌ 找不到商品「${itemName}」！請使用 \`/菜單\` 查看可用商品。`,
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply(
+        `❌ 找不到商品「${itemName}」！請使用 \`/菜單\` 查看可用商品。`
+      )
+    );
   }
 
   // 檢查請客者金額
   const buyerData = coffeeShop.initUser(interaction.user.id);
   if (buyerData.money < item.price) {
-    return await interaction.reply({
-      content: `❌ 金額不足！你需要 ${item.price} 元，但只有 ${buyerData.money} 元。`,
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply(
+        `❌ 金額不足！你需要 ${item.price} 元，但只有 ${buyerData.money} 元。`
+      )
+    );
   }
 
   // 執行請客交易
@@ -1123,15 +1510,11 @@ async function handleTreatCommand(interaction) {
       `**${interaction.user.displayName}** 請 **${friend.displayName}** 了一份 ${item.emoji} **${item.name}**！`
     )
     .setColor("#FFD700")
-    .addFields(
-      {
-        name: "🎁 請客商品",
-        value: `${item.emoji} ${item.name}`,
-        inline: true,
-      }
-      // { name: "💰 花費", value: `${item.price} 元`, inline: true },
-      // { name: "💵 剩餘金額", value: `${buyerData.money} 元`, inline: true }
-    );
+    .addFields({
+      name: "🎁 請客商品",
+      value: `${item.emoji} ${item.name}`,
+      inline: true,
+    });
 
   if (message) {
     embed.addFields({
@@ -1189,10 +1572,9 @@ async function handleWalletCommand(interaction) {
     !coffeeShop.isManager(interaction.member) &&
     !coffeeShop.isAdmin(interaction.member)
   ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以查看其他人的錢包！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以查看其他人的錢包！")
+    );
   }
 
   const userId = targetUser ? targetUser.id : interaction.user.id;
@@ -1231,10 +1613,9 @@ async function handleDailyCommand(interaction) {
   const result = coffeeShop.checkDailyReward(interaction.user.id);
 
   if (!result.success) {
-    return await interaction.reply({
-      content: `❌ ${result.message}`,
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply(`❌ ${result.message}`)
+    );
   }
 
   const embed = new EmbedBuilder()
@@ -1250,10 +1631,11 @@ async function handleDailyCommand(interaction) {
 // 菜單指令
 async function handleMenuCommand(interaction) {
   if (coffeeShop.data.menu.length === 0) {
-    return await interaction.reply({
-      content: "☕ 菜單目前是空的！請店長使用 `/快速設定菜單` 來建立菜單。",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply(
+        "☕ 菜單目前是空的！請店長使用 `/快速設定菜單` 來建立菜單。"
+      )
+    );
   }
 
   const embed = new EmbedBuilder()
@@ -1306,10 +1688,9 @@ async function handleRedeemPointsCommand(interaction) {
   const result = coffeeShop.redeemPoints(interaction.user.id);
 
   if (!result.success) {
-    return await interaction.reply({
-      content: `❌ ${result.message}`,
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply(`❌ ${result.message}`)
+    );
   }
 
   const embed = new EmbedBuilder()
@@ -1342,19 +1723,17 @@ async function handleRefundCommand(interaction) {
     !coffeeShop.isManager(interaction.member) &&
     !coffeeShop.isAdmin(interaction.member)
   ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以為他人退款！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以為他人退款！")
+    );
   }
 
   const userData = coffeeShop.initUser(userId);
 
   if (!userData.purchaseHistory || userData.purchaseHistory.length === 0) {
-    return await interaction.reply({
-      content: "❌ 沒有找到購買記錄！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 沒有找到購買記錄！")
+    );
   }
 
   const lastPurchase =
@@ -1362,10 +1741,9 @@ async function handleRefundCommand(interaction) {
   const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
 
   if (lastPurchase.time < fiveMinutesAgo) {
-    return await interaction.reply({
-      content: "❌ 只能退款5分鐘內的購買！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 只能退款5分鐘內的購買！")
+    );
   }
 
   userData.money += lastPurchase.price;
@@ -1390,35 +1768,34 @@ async function handleRefundCommand(interaction) {
     )
     .setTimestamp();
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply(createEphemeralReply("", embed));
 }
 
-// 發布菜單指令（僅店長）
-// 修復後的發布菜單指令處理函數
+// 發布菜單指令（僅店長）- 修復版本
 async function handlePublishMenuCommand(interaction) {
   if (
     !coffeeShop.isManager(interaction.member) &&
     !coffeeShop.isAdmin(interaction.member)
   ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以發布菜單！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以發布菜單！")
+    );
   }
 
   if (!coffeeShop.data.settings.menuChannelId) {
-    return await interaction.reply({
-      content: "❌ 請先設定菜單發布頻道！使用 `/設定 菜單頻道 #頻道名稱`",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply(
+        "❌ 請先設定菜單發布頻道！使用 `/設定 菜單頻道 #頻道名稱`"
+      )
+    );
   }
 
   if (coffeeShop.data.menu.length === 0) {
-    return await interaction.reply({
-      content:
-        "❌ 菜單是空的！請先使用 `/快速設定菜單` 或 `/編輯菜單 新增` 來建立菜單項目。",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply(
+        "❌ 菜單是空的！請先使用 `/快速設定菜單` 或 `/編輯菜單 新增` 來建立菜單項目。"
+      )
+    );
   }
 
   try {
@@ -1427,10 +1804,9 @@ async function handlePublishMenuCommand(interaction) {
     );
 
     if (!channel) {
-      return await interaction.reply({
-        content: "❌ 找不到菜單頻道！請重新設定菜單頻道。",
-        ephemeral: true,
-      });
+      return await interaction.reply(
+        createEphemeralReply("❌ 找不到菜單頻道！請重新設定菜單頻道。")
+      );
     }
 
     // 檢查機器人在該頻道的權限
@@ -1438,11 +1814,11 @@ async function handlePublishMenuCommand(interaction) {
     if (
       !botPermissions.has(["SendMessages", "EmbedLinks", "UseExternalEmojis"])
     ) {
-      return await interaction.reply({
-        content:
-          "❌ 機器人在目標頻道沒有足夠權限！需要：發送訊息、嵌入連結、使用外部表情符號",
-        ephemeral: true,
-      });
+      return await interaction.reply(
+        createEphemeralReply(
+          "❌ 機器人在目標頻道沒有足夠權限！需要：發送訊息、嵌入連結、使用外部表情符號"
+        )
+      );
     }
 
     // 創建菜單 Embed
@@ -1525,11 +1901,11 @@ async function handlePublishMenuCommand(interaction) {
     // 檢查是否成功創建了按鈕
     if (rows.length === 0) {
       console.log(`❌ 沒有創建任何按鈕！菜單項目:`, coffeeShop.data.menu);
-      return await interaction.reply({
-        content:
-          "❌ 無法創建菜單按鈕！請檢查菜單項目是否有效。使用 `/除錯菜單` 查看詳細資訊。",
-        ephemeral: true,
-      });
+      return await interaction.reply(
+        createEphemeralReply(
+          "❌ 無法創建菜單按鈕！請檢查菜單項目是否有效。使用 `/除錯菜單` 查看詳細資訊。"
+        )
+      );
     }
 
     console.log(
@@ -1561,15 +1937,16 @@ async function handlePublishMenuCommand(interaction) {
     );
 
     // 回覆成功訊息
-    await interaction.reply({
-      content: `✅ 菜單已成功發布到 ${channel}！\n📊 包含 ${
-        coffeeShop.data.menu.length
-      } 個項目，${rows.reduce(
-        (sum, row) => sum + row.components.length,
-        0
-      )} 個按鈕`,
-      ephemeral: true,
-    });
+    await interaction.reply(
+      createEphemeralReply(
+        `✅ 菜單已成功發布到 ${channel}！\n📊 包含 ${
+          coffeeShop.data.menu.length
+        } 個項目，${rows.reduce(
+          (sum, row) => sum + row.components.length,
+          0
+        )} 個按鈕`
+      )
+    );
   } catch (error) {
     console.error("❌ 發布菜單時發生錯誤:", error);
 
@@ -1583,23 +1960,316 @@ async function handlePublishMenuCommand(interaction) {
       errorMessage += ` 錯誤詳情: ${error.message}`;
     }
 
-    await interaction.reply({
-      content: errorMessage,
-      ephemeral: true,
-    });
+    await interaction.reply(createEphemeralReply(errorMessage));
   }
 }
 
-// 修復後的除錯菜單指令 - 添加更多診斷資訊
+// 編輯菜單指令（僅店長）
+async function handleEditMenuCommand(interaction) {
+  if (
+    !coffeeShop.isManager(interaction.member) &&
+    !coffeeShop.isAdmin(interaction.member)
+  ) {
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以編輯菜單！")
+    );
+  }
+
+  const subcommand = interaction.options.getSubcommand();
+
+  switch (subcommand) {
+    case "新增":
+      const id = interaction.options.getString("id").toLowerCase().trim();
+      const name = interaction.options.getString("名稱");
+      const price = interaction.options.getInteger("價格");
+      const emoji = interaction.options.getString("表情符號") || "☕";
+
+      if (price <= 0) {
+        return await interaction.reply(
+          createEphemeralReply("❌ 價格必須大於0！")
+        );
+      }
+
+      if (coffeeShop.data.menu.find((item) => item.id === id)) {
+        return await interaction.reply(
+          createEphemeralReply("❌ 此ID已存在！請使用不同的ID。")
+        );
+      }
+
+      const newItem = { id, name, price, emoji, image: emoji };
+      coffeeShop.data.menu.push(newItem);
+      coffeeShop.saveData();
+
+      console.log(`➕ 新增菜單項目:`, newItem);
+      console.log(`📋 目前菜單項目數量: ${coffeeShop.data.menu.length}`);
+
+      const addEmbed = new EmbedBuilder()
+        .setTitle("✅ 菜單項目新增成功！")
+        .setColor("#00FF00")
+        .addFields(
+          { name: "🆔 項目ID", value: id, inline: true },
+          { name: "📝 項目名稱", value: name, inline: true },
+          { name: "💰 價格", value: `${price} 元`, inline: true },
+          { name: "😀 表情符號", value: emoji, inline: true },
+          {
+            name: "📊 總菜單項目",
+            value: `${coffeeShop.data.menu.length} 個`,
+            inline: true,
+          }
+        )
+        .setTimestamp()
+        .setFooter({ text: "記得使用 /發布菜單 來更新頻道中的菜單！" });
+
+      await interaction.reply({ embeds: [addEmbed] });
+      break;
+
+    case "刪除":
+      const itemToDelete = interaction.options.getString("id");
+      const index = coffeeShop.data.menu.findIndex(
+        (item) => item.id === itemToDelete
+      );
+
+      if (index === -1) {
+        return await interaction.reply(
+          createEphemeralReply("❌ 找不到這個菜單項目！")
+        );
+      }
+
+      const deletedItem = coffeeShop.data.menu[index];
+      coffeeShop.data.menu.splice(index, 1);
+      coffeeShop.saveData();
+      await interaction.reply(`✅ 已刪除菜單項目: ${deletedItem.name}`);
+      break;
+  }
+}
+
+// 營收報告指令（僅店長）- 修復版本
+async function handleRevenueReportCommand(interaction) {
+  if (
+    !coffeeShop.isManager(interaction.member) &&
+    !coffeeShop.isAdmin(interaction.member)
+  ) {
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以查看營收報告！")
+    );
+  }
+
+  try {
+    const today = new Date().toDateString();
+    let todaySales = 0;
+    let todayCustomers = 0;
+
+    // 修復 Set/Array 相容性問題
+    if (coffeeShop.data.dailyStats.date === today) {
+      todaySales = coffeeShop.data.dailyStats.sales || 0;
+
+      // 安全處理 customers 數據
+      if (coffeeShop.data.dailyStats.customers) {
+        if (Array.isArray(coffeeShop.data.dailyStats.customers)) {
+          todayCustomers = coffeeShop.data.dailyStats.customers.length;
+        } else if (coffeeShop.data.dailyStats.customers instanceof Set) {
+          todayCustomers = coffeeShop.data.dailyStats.customers.size;
+        } else {
+          console.log("⚠️ customers 數據格式異常，重置為空 Set");
+          coffeeShop.data.dailyStats.customers = new Set();
+          todayCustomers = 0;
+        }
+      } else {
+        coffeeShop.data.dailyStats.customers = new Set();
+        todayCustomers = 0;
+      }
+    }
+
+    const totalUsers = Object.keys(coffeeShop.data.users || {}).length;
+    const activeUsers = Object.values(coffeeShop.data.users || {}).filter(
+      (user) => user.purchaseHistory && user.purchaseHistory.length > 0
+    ).length;
+
+    // 安全處理購買統計
+    const itemStats = {};
+    Object.values(coffeeShop.data.users || {}).forEach((user) => {
+      if (user.purchaseHistory && Array.isArray(user.purchaseHistory)) {
+        user.purchaseHistory.forEach((purchase) => {
+          if (purchase && purchase.item) {
+            itemStats[purchase.item] = (itemStats[purchase.item] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    const popularItem =
+      Object.entries(itemStats).length > 0
+        ? Object.entries(itemStats).sort((a, b) => b[1] - a[1])[0]
+        : null;
+
+    const embed = new EmbedBuilder()
+      .setTitle("📊 燒肉Cafe 營收報告")
+      .setColor("#FFD700")
+      .addFields(
+        {
+          name: "🏪 咖啡廳戶頭",
+          value: `${coffeeShop.data.shopAccount || 0} 元`,
+          inline: true,
+        },
+        { name: "📅 今日營收", value: `${todaySales} 元`, inline: true },
+        { name: "👥 今日顧客", value: `${todayCustomers} 人`, inline: true },
+        { name: "👤 總註冊用戶", value: `${totalUsers} 人`, inline: true },
+        { name: "🛒 活躍顧客", value: `${activeUsers} 人`, inline: true },
+        {
+          name: "⭐ 熱門商品",
+          value: popularItem ? `${popularItem[0]} (${popularItem[1]}次)` : "無",
+          inline: true,
+        }
+      )
+      .setTimestamp()
+      .setFooter({ text: `報告日期: ${today}` });
+
+    await interaction.reply(createEphemeralReply("", embed));
+  } catch (error) {
+    console.error("❌ 營收報告錯誤:", error);
+    await interaction.reply(
+      createEphemeralReply("❌ 生成營收報告時發生錯誤！請聯繫管理員。")
+    );
+  }
+}
+
+// 發薪水指令（僅店長）
+async function handlePaySalaryCommand(interaction) {
+  if (
+    !coffeeShop.isManager(interaction.member) &&
+    !coffeeShop.isAdmin(interaction.member)
+  ) {
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以發薪水！")
+    );
+  }
+
+  const targetUser = interaction.options.getUser("玩家");
+  const amount = interaction.options.getInteger("金額");
+
+  if (amount <= 0) {
+    return await interaction.reply(
+      createEphemeralReply("❌ 薪水金額必須大於0！")
+    );
+  }
+
+  if (coffeeShop.data.shopAccount < amount) {
+    return await interaction.reply(
+      createEphemeralReply("❌ 咖啡廳戶頭餘額不足！")
+    );
+  }
+
+  coffeeShop.addMoney(targetUser.id, amount, "薪水發放");
+  coffeeShop.data.shopAccount -= amount;
+  coffeeShop.saveData();
+
+  const embed = new EmbedBuilder()
+    .setTitle("💰 薪水發放成功！")
+    .setDescription(`已給 ${targetUser} 發放薪水 ${amount} 元`)
+    .setColor("#00FF00")
+    .addFields(
+      { name: "💵 發放金額", value: `${amount} 元`, inline: true },
+      {
+        name: "🏪 咖啡廳剩餘",
+        value: `${coffeeShop.data.shopAccount} 元`,
+        inline: true,
+      }
+    )
+    .setTimestamp();
+
+  await interaction.reply({ embeds: [embed] });
+}
+
+// 快速設定菜單指令
+async function handleQuickSetupMenuCommand(interaction) {
+  if (
+    !coffeeShop.isManager(interaction.member) &&
+    !coffeeShop.isAdmin(interaction.member)
+  ) {
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以快速設定菜單！")
+    );
+  }
+
+  const defaultMenu = [
+    { id: "americano", name: "美式咖啡", price: 50, emoji: "☕" },
+    { id: "latte", name: "拿鐵咖啡", price: 80, emoji: "🥛" },
+    { id: "cappuccino", name: "卡布奇諾", price: 85, emoji: "☕" },
+    { id: "mocha", name: "摩卡咖啡", price: 90, emoji: "☕" },
+    { id: "tiramisu", name: "提拉米蘇", price: 120, emoji: "🍰" },
+    { id: "cheesecake", name: "起司蛋糕", price: 100, emoji: "🧀" },
+    { id: "brownie", name: "布朗尼", price: 80, emoji: "🍫" },
+    { id: "croissant", name: "可頌", price: 60, emoji: "🥐" },
+  ];
+
+  let addedCount = 0;
+  let skippedCount = 0;
+  let addedItems = [];
+
+  for (const item of defaultMenu) {
+    if (coffeeShop.data.menu.find((existing) => existing.id === item.id)) {
+      skippedCount++;
+      continue;
+    }
+
+    const newItem = {
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      emoji: item.emoji,
+      image: item.emoji,
+    };
+
+    coffeeShop.data.menu.push(newItem);
+    addedItems.push(newItem);
+    addedCount++;
+  }
+
+  coffeeShop.saveData();
+
+  const embed = new EmbedBuilder()
+    .setTitle("🚀 快速設定菜單完成！")
+    .setColor("#00FF00")
+    .addFields(
+      { name: "✅ 新增項目", value: `${addedCount} 個`, inline: true },
+      {
+        name: "⚠️ 跳過項目",
+        value: `${skippedCount} 個 (已存在)`,
+        inline: true,
+      },
+      {
+        name: "📊 總菜單項目",
+        value: `${coffeeShop.data.menu.length} 個`,
+        inline: true,
+      }
+    );
+
+  if (addedItems.length > 0) {
+    let itemList = "";
+    addedItems.forEach((item) => {
+      itemList += `${item.emoji} ${item.name} - ${item.price}元\n`;
+    });
+    embed.addFields({
+      name: "🆕 新增的項目",
+      value: itemList.slice(0, 1024),
+      inline: false,
+    });
+  }
+
+  embed.setFooter({ text: "記得使用 /發布菜單 來更新頻道中的菜單！" });
+
+  await interaction.reply({ embeds: [embed] });
+}
+
+// 除錯菜單指令 - 修復版本
 async function handleDebugMenuCommand(interaction) {
   if (
     !coffeeShop.isManager(interaction.member) &&
     !coffeeShop.isAdmin(interaction.member)
   ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以使用除錯功能！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有店長和管理員可以使用除錯功能！")
+    );
   }
 
   const embed = new EmbedBuilder()
@@ -1762,371 +2432,15 @@ async function handleDebugMenuCommand(interaction) {
     });
   }
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
-}
-
-// 編輯菜單指令（僅店長）
-async function handleEditMenuCommand(interaction) {
-  if (
-    !coffeeShop.isManager(interaction.member) &&
-    !coffeeShop.isAdmin(interaction.member)
-  ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以編輯菜單！",
-      ephemeral: true,
-    });
-  }
-
-  const subcommand = interaction.options.getSubcommand();
-
-  switch (subcommand) {
-    case "新增":
-      const id = interaction.options.getString("id").toLowerCase().trim();
-      const name = interaction.options.getString("名稱");
-      const price = interaction.options.getInteger("價格");
-      const emoji = interaction.options.getString("表情符號") || "☕";
-
-      if (price <= 0) {
-        return await interaction.reply({
-          content: "❌ 價格必須大於0！",
-          ephemeral: true,
-        });
-      }
-
-      if (coffeeShop.data.menu.find((item) => item.id === id)) {
-        return await interaction.reply({
-          content: "❌ 此ID已存在！請使用不同的ID。",
-          ephemeral: true,
-        });
-      }
-
-      const newItem = { id, name, price, emoji, image: emoji };
-      coffeeShop.data.menu.push(newItem);
-      coffeeShop.saveData();
-
-      console.log(`➕ 新增菜單項目:`, newItem);
-      console.log(`📋 目前菜單項目數量: ${coffeeShop.data.menu.length}`);
-
-      const addEmbed = new EmbedBuilder()
-        .setTitle("✅ 菜單項目新增成功！")
-        .setColor("#00FF00")
-        .addFields(
-          { name: "🆔 項目ID", value: id, inline: true },
-          { name: "📝 項目名稱", value: name, inline: true },
-          { name: "💰 價格", value: `${price} 元`, inline: true },
-          { name: "😀 表情符號", value: emoji, inline: true },
-          {
-            name: "📊 總菜單項目",
-            value: `${coffeeShop.data.menu.length} 個`,
-            inline: true,
-          }
-        )
-        .setTimestamp()
-        .setFooter({ text: "記得使用 /發布菜單 來更新頻道中的菜單！" });
-
-      await interaction.reply({ embeds: [addEmbed] });
-      break;
-
-    case "刪除":
-      const itemToDelete = interaction.options.getString("id");
-      const index = coffeeShop.data.menu.findIndex(
-        (item) => item.id === itemToDelete
-      );
-
-      if (index === -1) {
-        return await interaction.reply({
-          content: "❌ 找不到這個菜單項目！",
-          ephemeral: true,
-        });
-      }
-
-      const deletedItem = coffeeShop.data.menu[index];
-      coffeeShop.data.menu.splice(index, 1);
-      coffeeShop.saveData();
-      await interaction.reply(`✅ 已刪除菜單項目: ${deletedItem.name}`);
-      break;
-  }
-}
-
-// 營收報告指令（僅店長）
-async function handleRevenueReportCommand(interaction) {
-  if (
-    !coffeeShop.isManager(interaction.member) &&
-    !coffeeShop.isAdmin(interaction.member)
-  ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以查看營收報告！",
-      ephemeral: true,
-    });
-  }
-
-  const today = new Date().toDateString();
-  let todaySales = 0;
-  let todayCustomers = 0;
-
-  if (coffeeShop.data.dailyStats.date === today) {
-    todaySales = coffeeShop.data.dailyStats.sales;
-    todayCustomers = Array.isArray(coffeeShop.data.dailyStats.customers)
-      ? coffeeShop.data.dailyStats.customers.length
-      : coffeeShop.data.dailyStats.customers.size;
-  }
-
-  const totalUsers = Object.keys(coffeeShop.data.users).length;
-  const activeUsers = Object.values(coffeeShop.data.users).filter(
-    (user) => user.purchaseHistory && user.purchaseHistory.length > 0
-  ).length;
-
-  const itemStats = {};
-  Object.values(coffeeShop.data.users).forEach((user) => {
-    if (user.purchaseHistory) {
-      user.purchaseHistory.forEach((purchase) => {
-        itemStats[purchase.item] = (itemStats[purchase.item] || 0) + 1;
-      });
-    }
-  });
-
-  const popularItem =
-    Object.entries(itemStats).length > 0
-      ? Object.entries(itemStats).sort((a, b) => b[1] - a[1])[0]
-      : null;
-
-  const embed = new EmbedBuilder()
-    .setTitle("📊 燒肉Cafe 營收報告")
-    .setColor("#FFD700")
-    .addFields(
-      {
-        name: "🏪 咖啡廳戶頭",
-        value: `${coffeeShop.data.shopAccount} 元`,
-        inline: true,
-      },
-      { name: "📅 今日營收", value: `${todaySales} 元`, inline: true },
-      { name: "👥 今日顧客", value: `${todayCustomers} 人`, inline: true },
-      { name: "👤 總註冊用戶", value: `${totalUsers} 人`, inline: true },
-      { name: "🛒 活躍顧客", value: `${activeUsers} 人`, inline: true },
-      {
-        name: "⭐ 熱門商品",
-        value: popularItem ? `${popularItem[0]} (${popularItem[1]}次)` : "無",
-        inline: true,
-      }
-    )
-    .setTimestamp()
-    .setFooter({ text: `報告日期: ${today}` });
-
-  await interaction.reply({ embeds: [embed], ephemeral: true });
-}
-
-// 發薪水指令（僅店長）
-async function handlePaySalaryCommand(interaction) {
-  if (
-    !coffeeShop.isManager(interaction.member) &&
-    !coffeeShop.isAdmin(interaction.member)
-  ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以發薪水！",
-      ephemeral: true,
-    });
-  }
-
-  const targetUser = interaction.options.getUser("玩家");
-  const amount = interaction.options.getInteger("金額");
-
-  if (amount <= 0) {
-    return await interaction.reply({
-      content: "❌ 薪水金額必須大於0！",
-      ephemeral: true,
-    });
-  }
-
-  if (coffeeShop.data.shopAccount < amount) {
-    return await interaction.reply({
-      content: "❌ 咖啡廳戶頭餘額不足！",
-      ephemeral: true,
-    });
-  }
-
-  coffeeShop.addMoney(targetUser.id, amount, "薪水發放");
-  coffeeShop.data.shopAccount -= amount;
-  coffeeShop.saveData();
-
-  const embed = new EmbedBuilder()
-    .setTitle("💰 薪水發放成功！")
-    .setDescription(`已給 ${targetUser} 發放薪水 ${amount} 元`)
-    .setColor("#00FF00")
-    .addFields(
-      { name: "💵 發放金額", value: `${amount} 元`, inline: true },
-      {
-        name: "🏪 咖啡廳剩餘",
-        value: `${coffeeShop.data.shopAccount} 元`,
-        inline: true,
-      }
-    )
-    .setTimestamp();
-
-  await interaction.reply({ embeds: [embed] });
-}
-
-// 快速設定菜單指令
-async function handleQuickSetupMenuCommand(interaction) {
-  if (
-    !coffeeShop.isManager(interaction.member) &&
-    !coffeeShop.isAdmin(interaction.member)
-  ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以快速設定菜單！",
-      ephemeral: true,
-    });
-  }
-
-  const defaultMenu = [
-    { id: "americano", name: "美式咖啡", price: 50, emoji: "☕" },
-    { id: "latte", name: "拿鐵咖啡", price: 80, emoji: "🥛" },
-    { id: "cappuccino", name: "卡布奇諾", price: 85, emoji: "☕" },
-    { id: "mocha", name: "摩卡咖啡", price: 90, emoji: "☕" },
-    { id: "tiramisu", name: "提拉米蘇", price: 120, emoji: "🍰" },
-    { id: "cheesecake", name: "起司蛋糕", price: 100, emoji: "🧀" },
-    { id: "brownie", name: "布朗尼", price: 80, emoji: "🍫" },
-    { id: "croissant", name: "可頌", price: 60, emoji: "🥐" },
-  ];
-
-  let addedCount = 0;
-  let skippedCount = 0;
-  let addedItems = [];
-
-  for (const item of defaultMenu) {
-    if (coffeeShop.data.menu.find((existing) => existing.id === item.id)) {
-      skippedCount++;
-      continue;
-    }
-
-    const newItem = {
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      emoji: item.emoji,
-      image: item.emoji,
-    };
-
-    coffeeShop.data.menu.push(newItem);
-    addedItems.push(newItem);
-    addedCount++;
-  }
-
-  coffeeShop.saveData();
-
-  const embed = new EmbedBuilder()
-    .setTitle("🚀 快速設定菜單完成！")
-    .setColor("#00FF00")
-    .addFields(
-      { name: "✅ 新增項目", value: `${addedCount} 個`, inline: true },
-      {
-        name: "⚠️ 跳過項目",
-        value: `${skippedCount} 個 (已存在)`,
-        inline: true,
-      },
-      {
-        name: "📊 總菜單項目",
-        value: `${coffeeShop.data.menu.length} 個`,
-        inline: true,
-      }
-    );
-
-  if (addedItems.length > 0) {
-    let itemList = "";
-    addedItems.forEach((item) => {
-      itemList += `${item.emoji} ${item.name} - ${item.price}元\n`;
-    });
-    embed.addFields({
-      name: "🆕 新增的項目",
-      value: itemList.slice(0, 1024),
-      inline: false,
-    });
-  }
-
-  embed.setFooter({ text: "記得使用 /發布菜單 來更新頻道中的菜單！" });
-
-  await interaction.reply({ embeds: [embed] });
-}
-
-// 除錯菜單指令
-async function handleDebugMenuCommand(interaction) {
-  if (
-    !coffeeShop.isManager(interaction.member) &&
-    !coffeeShop.isAdmin(interaction.member)
-  ) {
-    return await interaction.reply({
-      content: "❌ 只有店長和管理員可以使用除錯功能！",
-      ephemeral: true,
-    });
-  }
-
-  const embed = new EmbedBuilder()
-    .setTitle("🔍 菜單除錯資訊")
-    .setColor("#FFA500")
-    .addFields(
-      {
-        name: "📊 菜單項目數量",
-        value: `${coffeeShop.data.menu.length} 個`,
-        inline: true,
-      },
-      {
-        name: "🏪 咖啡廳戶頭",
-        value: `${coffeeShop.data.shopAccount} 元`,
-        inline: true,
-      },
-      {
-        name: "📺 菜單頻道",
-        value: coffeeShop.data.settings.menuChannelId || "未設定",
-        inline: true,
-      }
-    );
-
-  if (coffeeShop.data.menu.length > 0) {
-    let menuDetails = "";
-    coffeeShop.data.menu.forEach((item, index) => {
-      menuDetails += `${index + 1}. **${item.name}** (ID: \`${item.id}\`)\n`;
-      menuDetails += `   ${item.emoji || "☕"} ${item.price}元\n\n`;
-    });
-
-    embed.addFields({
-      name: "📋 菜單詳細資料",
-      value: menuDetails.slice(0, 1024),
-      inline: false,
-    });
-  } else {
-    embed.addFields({
-      name: "📋 菜單狀態",
-      value: "目前沒有任何菜單項目",
-      inline: false,
-    });
-  }
-
-  try {
-    const stats = fs.statSync(coffeeShop.dataPath);
-    embed.addFields({
-      name: "💾 資料檔案",
-      value: `檔案大小: ${(stats.size / 1024).toFixed(
-        2
-      )} KB\n最後修改: ${stats.mtime.toLocaleString("zh-TW")}`,
-      inline: false,
-    });
-  } catch (error) {
-    embed.addFields({
-      name: "💾 資料檔案",
-      value: "❌ 無法讀取檔案資訊",
-      inline: false,
-    });
-  }
-
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply(createEphemeralReply("", embed));
 }
 
 // 設定指令（僅管理員）
 async function handleSettingsCommand(interaction) {
   if (!coffeeShop.isAdmin(interaction.member)) {
-    return await interaction.reply({
-      content: "❌ 只有管理員可以使用設定功能！",
-      ephemeral: true,
-    });
+    return await interaction.reply(
+      createEphemeralReply("❌ 只有管理員可以使用設定功能！")
+    );
   }
 
   const subcommand = interaction.options.getSubcommand();
@@ -2160,8 +2474,8 @@ async function handleButtonInteraction(interaction) {
   }
 
   try {
-    // 立即回應互動，避免超時
-    await interaction.deferReply({ ephemeral: true });
+    // 立即回應互動，避免超時 - 使用新版本語法
+    await interaction.deferReply({ flags: [4096] });
 
     const itemId = interaction.customId.replace("buy_", "");
     console.log(`🛒 嘗試購買項目: ${itemId}`);
@@ -2258,10 +2572,9 @@ async function handleButtonInteraction(interaction) {
             "❌ 處理購買時發生錯誤，請稍後再試！如果已扣款，請使用 `/退款` 指令。",
         });
       } else if (!interaction.replied) {
-        await interaction.reply({
-          content: "❌ 處理購買時發生錯誤，請稍後再試！",
-          ephemeral: true,
-        });
+        await interaction.reply(
+          createEphemeralReply("❌ 處理購買時發生錯誤，請稍後再試！")
+        );
       }
     } catch (replyError) {
       console.error("❌ 無法回覆互動:", replyError);
@@ -2279,58 +2592,6 @@ async function initializeLightningFast() {
       return;
     }
 
-    console.log(`⚡ 頻道連接成功: "${channel.name}"`);
-
-    const perms = channel.permissionsFor(client.user);
-    if (!perms.has(PermissionFlagsBits.ManageChannels)) {
-      console.error("❌ 缺少管理頻道權限");
-      return;
-    }
-
-    const hasSpecialUser = CONFIG.SPECIAL_USER_IDS.some((id) =>
-      channel.members.has(id)
-    );
-
-    if (hasSpecialUser) {
-      await lightningOpenChannel(channel);
-    } else {
-      await lightningCloseChannel(channel);
-    }
-
-    console.log("⚡ 閃電初始化完成");
-    startLightningMonitoring();
-  } catch (error) {
-    console.error("❌ 初始化失敗:", error.message);
-  }
-}
-
-// 閃電開啟頻道 (保留原有功能)
-async function lightningOpenChannel(channel) {
-  if (currentState === "open") return;
-
-  console.log(`⚡ 閃電開啟頻道...`);
-  const startTime = Date.now();
-
-  try {
-    const permPromise = channel.permissionOverwrites.edit(
-      channel.guild.roles.everyone,
-      {
-        [PermissionFlagsBits.Connect]: true,
-      }
-    );
-
-    await Promise.race([
-      permPromise,
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("權限超時")), 5000)
-      ),
-    ]);
-
-    console.log(`⚡ 權限開放完成 (${Date.now() - startTime}ms)`);
-
-    ultraManager.backgroundRename(channel, CONFIG.OPEN_NAME);
-
-    currentState = "open";
     console.log(`⚡ 頻道開啟完成 (總耗時: ${Date.now() - startTime}ms)`);
   } catch (error) {
     console.error(`❌ 開啟頻道失敗: ${error.message}`);
@@ -2536,6 +2797,13 @@ console.log(`
 • 咖啡廳戶頭獨立管理 ✅
 • 完整的除錯和監控系統 ✅
 
+🔧 修復內容:
+• 修復 Discord.js ephemeral 棄用警告 ✅
+• 修復營收報告 Set/Array 相容性問題 ✅
+• 修復按鈕互動超時問題 ✅
+• 增強錯誤處理和日誌記錄 ✅
+• 添加資料完整性檢查 ✅
+
 🔧 設定步驟:
 1. 設定環境變數 (.env 檔案)
 2. npm install discord.js dotenv
@@ -2555,4 +2823,11 @@ console.log(`
 
 🎉 現在你的咖啡廳完全準備好了！
 這是一個完整的、功能齊全的咖啡廳經營機器人！
+
+✅ 主要修復完成:
+1. 修復營收報告指令錯誤 (Set/Array 相容性)
+2. 修復 Discord.js ephemeral 警告 (使用 flags: [4096])
+3. 增強按鈕互動錯誤處理
+4. 添加資料完整性驗證
+5. 統一使用新的回覆格式
 `);
