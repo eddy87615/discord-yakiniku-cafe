@@ -1,11 +1,11 @@
 {
   "users": {
     "836447451324874772": {
-      "money": 1525,
-      "points": 4,
-      "lastDaily": 1750131896823,
-      "totalEarned": 2495,
-      "totalSpent": 970,
+      "money": 6775,
+      "points": 8,
+      "lastDaily": 1750292442495,
+      "totalEarned": 8420,
+      "totalSpent": 1645,
       "purchaseHistory": [
         {
           "item": "美式咖啡",
@@ -71,92 +71,164 @@
           "item": "請客: 鬆餅 (給 How)",
           "price": 150,
           "time": 1750227328968
+        },
+        {
+          "item": "烤布雷",
+          "price": 80,
+          "time": 1750245469807
+        },
+        {
+          "item": "珍珠奶茶",
+          "price": 75,
+          "time": 1750245479187
+        },
+        {
+          "item": "請客: 珍珠奶茶 (給 chi)",
+          "price": 75,
+          "time": 1750245762871
+        },
+        {
+          "item": "請客: 烤布雷 (給 chi)",
+          "price": 80,
+          "time": 1750246300414
+        },
+        {
+          "item": "請客: 拿鐵咖啡 (給 天晴)",
+          "price": 80,
+          "time": 1750290798462
+        },
+        {
+          "item": "被請客: 美式咖啡 (來自 蓮)",
+          "price": 0,
+          "time": 1750292390638
+        },
+        {
+          "item": "請客: 拿鐵咖啡 (給 碳烤燒肉🔥)",
+          "price": 80,
+          "time": 1750303234666
+        },
+        {
+          "item": "請客: 餅乾 (給 碳烤燒肉🔥)",
+          "price": 50,
+          "time": 1750303321245
+        },
+        {
+          "item": "被請客: 鬆餅 (來自 碳烤燒肉🔥)",
+          "price": 0,
+          "time": 1750303382940
+        },
+        {
+          "item": "請客: 布朗尼 (給 碳烤燒肉🔥)",
+          "price": 80,
+          "time": 1750303414608
+        },
+        {
+          "item": "請客: 珍珠奶茶 (給 Tweek Tweak)",
+          "price": 75,
+          "time": 1750308620834
         }
       ],
       "joinTime": 1750128762608,
       "lastVoiceTime": 0
     },
     "590477269429125120": {
-      "money": 265,
+      "money": 4765,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 265,
+      "totalEarned": 4765,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750128792835,
       "lastVoiceTime": 0
     },
     "437250059541807124": {
-      "money": 20,
+      "money": 5385,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 20,
+      "totalEarned": 5385,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750128895529,
       "lastVoiceTime": 0
     },
     "493694033202511883": {
-      "money": 1125,
-      "points": 1,
+      "money": 13075,
+      "points": 2,
       "lastDaily": 0,
-      "totalEarned": 1125,
+      "totalEarned": 13075,
       "totalSpent": 0,
       "purchaseHistory": [
         {
           "item": "被請客: 拿鐵咖啡 (來自 健太)",
           "price": 0,
           "time": 1750214128262
+        },
+        {
+          "item": "被請客: 抹茶拿鐵 (來自 學姊)",
+          "price": 0,
+          "time": 1750298817701
         }
       ],
       "joinTime": 1750128921063,
       "lastVoiceTime": 0
     },
     "536356100593942550": {
-      "money": 5,
-      "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 5,
+      "money": 10195,
+      "points": 1,
+      "lastDaily": 1750293740186,
+      "totalEarned": 10195,
       "totalSpent": 0,
-      "purchaseHistory": [],
+      "purchaseHistory": [
+        {
+          "item": "被請客: 拿鐵咖啡 (來自 健太)",
+          "price": 0,
+          "time": 1750290798462
+        }
+      ],
       "joinTime": 1750128938407,
       "lastVoiceTime": 0
     },
     "1022888696443326528": {
-      "money": 710,
+      "money": 3405,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 710,
-      "totalSpent": 0,
-      "purchaseHistory": [],
+      "lastDaily": 1750298747515,
+      "totalEarned": 3495,
+      "totalSpent": 90,
+      "purchaseHistory": [
+        {
+          "item": "請客: 抹茶拿鐵 (給 Chili)",
+          "price": 90,
+          "time": 1750298817701
+        }
+      ],
       "joinTime": 1750129019315,
       "lastVoiceTime": 0
     },
     "152116849142661120": {
-      "money": 105,
+      "money": 120,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 105,
+      "totalEarned": 120,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750129183882,
       "lastVoiceTime": 0
     },
     "325892529637818370": {
-      "money": 110,
+      "money": 175,
       "points": 0,
       "lastDaily": 1750219870614,
-      "totalEarned": 110,
+      "totalEarned": 175,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750130068462,
       "lastVoiceTime": 0
     },
     "118991673945489408": {
-      "money": 10,
+      "money": 4220,
       "points": 1,
-      "lastDaily": 0,
-      "totalEarned": 10,
+      "lastDaily": 1750286881115,
+      "totalEarned": 4220,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -169,41 +241,41 @@
       "lastVoiceTime": 0
     },
     "557466330744356886": {
-      "money": 30,
+      "money": 630,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 30,
+      "totalEarned": 630,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750130846511,
       "lastVoiceTime": 0
     },
     "369890059152785409": {
-      "money": 5,
+      "money": 10,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 5,
+      "totalEarned": 10,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750131044174,
       "lastVoiceTime": 0
     },
     "336427905896808450": {
-      "money": 15,
+      "money": 1940,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 15,
+      "lastDaily": 1750235389699,
+      "totalEarned": 1940,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750131317003,
       "lastVoiceTime": 0
     },
     "330755940594876429": {
-      "money": 885,
-      "points": 2,
-      "lastDaily": 1750214214262,
-      "totalEarned": 1005,
-      "totalSpent": 120,
+      "money": 7190,
+      "points": 5,
+      "lastDaily": 1750303348799,
+      "totalEarned": 7460,
+      "totalSpent": 270,
       "purchaseHistory": [
         {
           "item": "被請客: 起司蛋糕 (來自 健太)",
@@ -219,26 +291,46 @@
           "item": "請客: 提拉米蘇 (給 健太)",
           "price": 120,
           "time": 1750214225853
+        },
+        {
+          "item": "被請客: 拿鐵咖啡 (來自 健太)",
+          "price": 0,
+          "time": 1750303234666
+        },
+        {
+          "item": "被請客: 餅乾 (來自 健太)",
+          "price": 0,
+          "time": 1750303321245
+        },
+        {
+          "item": "請客: 鬆餅 (給 健太)",
+          "price": 150,
+          "time": 1750303382940
+        },
+        {
+          "item": "被請客: 布朗尼 (來自 健太)",
+          "price": 0,
+          "time": 1750303414608
         }
       ],
       "joinTime": 1750131446951,
       "lastVoiceTime": 0
     },
     "747852848141697075": {
-      "money": 15,
+      "money": 215,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 15,
+      "lastDaily": 1750293770159,
+      "totalEarned": 215,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750131640140,
       "lastVoiceTime": 0
     },
     "832977253696667728": {
-      "money": 80,
+      "money": 280,
       "points": 1,
-      "lastDaily": 1750225129438,
-      "totalEarned": 200,
+      "lastDaily": 1750300429894,
+      "totalEarned": 400,
       "totalSpent": 120,
       "purchaseHistory": [
         {
@@ -251,20 +343,20 @@
       "lastVoiceTime": 0
     },
     "368757119111135234": {
-      "money": 5,
+      "money": 1525,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 5,
+      "totalEarned": 1525,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750132817982,
       "lastVoiceTime": 0
     },
     "571712084459651093": {
-      "money": 150,
+      "money": 2565,
       "points": 2,
       "lastDaily": 0,
-      "totalEarned": 150,
+      "totalEarned": 2565,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -282,126 +374,131 @@
       "lastVoiceTime": 0
     },
     "528442516584792074": {
-      "money": 110,
+      "money": 1110,
       "points": 0,
       "lastDaily": 1750219854723,
-      "totalEarned": 110,
+      "totalEarned": 1110,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750133005811,
       "lastVoiceTime": 0
     },
     "891262344871682090": {
-      "money": 15,
+      "money": 4100,
       "points": 0,
-      "lastDaily": 0,
-      "totalEarned": 15,
+      "lastDaily": 1750234151969,
+      "totalEarned": 4100,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750213546313,
       "lastVoiceTime": 0
     },
     "590487806502240274": {
-      "money": 40,
+      "money": 5455,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 40,
+      "totalEarned": 5455,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750213771479,
       "lastVoiceTime": 0
     },
     "277776605558996992": {
-      "money": 85,
+      "money": 1015,
       "points": 0,
-      "lastDaily": 1750219823234,
-      "totalEarned": 135,
-      "totalSpent": 50,
+      "lastDaily": 1750292368094,
+      "totalEarned": 1115,
+      "totalSpent": 100,
       "purchaseHistory": [
         {
           "item": "請客: 美式咖啡 (給 伈伈)",
           "price": 50,
           "time": 1750219888507
+        },
+        {
+          "item": "請客: 美式咖啡 (給 健太)",
+          "price": 50,
+          "time": 1750292390638
         }
       ],
       "joinTime": 1750213855617,
       "lastVoiceTime": 0
     },
     "867397559261331456": {
-      "money": 995,
+      "money": 7390,
       "points": 0,
       "lastDaily": 1750219866212,
-      "totalEarned": 995,
+      "totalEarned": 7390,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750213905426,
       "lastVoiceTime": 0
     },
     "694240606800838657": {
-      "money": 1055,
+      "money": 2880,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 1055,
+      "totalEarned": 2880,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219794421,
       "lastVoiceTime": 0
     },
     "559968200767307796": {
-      "money": 95,
+      "money": 10750,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 95,
+      "totalEarned": 10750,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219817197,
       "lastVoiceTime": 0
     },
     "461137872007987228": {
-      "money": 380,
+      "money": 4465,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 380,
+      "totalEarned": 4465,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219850646,
       "lastVoiceTime": 0
     },
     "483174413353615380": {
-      "money": 65,
+      "money": 445,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 65,
+      "totalEarned": 445,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219850649,
       "lastVoiceTime": 0
     },
     "1209869337494691960": {
-      "money": 100,
+      "money": 245,
       "points": 0,
-      "lastDaily": 1750219863636,
-      "totalEarned": 100,
+      "lastDaily": 1750293921271,
+      "totalEarned": 245,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219863634,
       "lastVoiceTime": 0
     },
     "355707326872682496": {
-      "money": 100,
+      "money": 300,
       "points": 0,
       "lastDaily": 1750219865921,
-      "totalEarned": 100,
+      "totalEarned": 300,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750219865919,
       "lastVoiceTime": 0
     },
     "427277356353191937": {
-      "money": 5,
+      "money": 1035,
       "points": 1,
       "lastDaily": 0,
-      "totalEarned": 5,
+      "totalEarned": 1035,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -414,30 +511,30 @@
       "lastVoiceTime": 0
     },
     "871358095622828032": {
-      "money": 100,
+      "money": 190,
       "points": 0,
       "lastDaily": 1750223496617,
-      "totalEarned": 100,
+      "totalEarned": 190,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750223496615,
       "lastVoiceTime": 0
     },
     "332906119846559745": {
-      "money": 510,
+      "money": 5715,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 510,
+      "totalEarned": 5715,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750223509796,
       "lastVoiceTime": 0
     },
     "649879233518239769": {
-      "money": 640,
+      "money": 660,
       "points": 1,
       "lastDaily": 0,
-      "totalEarned": 640,
+      "totalEarned": 660,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -450,30 +547,30 @@
       "lastVoiceTime": 0
     },
     "426981232497131522": {
-      "money": 5,
+      "money": 6475,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 5,
+      "totalEarned": 6475,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750223764870,
       "lastVoiceTime": 0
     },
     "296298034034245633": {
-      "money": 670,
+      "money": 8295,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 670,
+      "totalEarned": 8295,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750224933654,
       "lastVoiceTime": 0
     },
     "557437400515608586": {
-      "money": 705,
+      "money": 7615,
       "points": 2,
       "lastDaily": 0,
-      "totalEarned": 705,
+      "totalEarned": 7615,
       "totalSpent": 0,
       "purchaseHistory": [
         {
@@ -501,23 +598,410 @@
       "lastVoiceTime": 0
     },
     "809654126924398632": {
-      "money": 450,
+      "money": 1630,
       "points": 0,
       "lastDaily": 0,
-      "totalEarned": 450,
+      "totalEarned": 1630,
       "totalSpent": 0,
       "purchaseHistory": [],
       "joinTime": 1750226133669,
       "lastVoiceTime": 0
     },
     "540481865883189258": {
+      "money": 745,
+      "points": 0,
+      "lastDaily": 1750299095988,
+      "totalEarned": 745,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750227602013,
+      "lastVoiceTime": 0
+    },
+    "618037205893644298": {
+      "money": 25,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 25,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750233982578,
+      "lastVoiceTime": 0
+    },
+    "811870694802849799": {
+      "money": 2630,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 2630,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750234094750,
+      "lastVoiceTime": 0
+    },
+    "868074362845147177": {
+      "money": 85,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 85,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750236603023,
+      "lastVoiceTime": 0
+    },
+    "483227224372412416": {
+      "money": 4880,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 4880,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750236794773,
+      "lastVoiceTime": 0
+    },
+    "670692402381455361": {
+      "money": 360,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 360,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750236877565,
+      "lastVoiceTime": 0
+    },
+    "932258372433084477": {
+      "money": 1040,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 1040,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750240814785,
+      "lastVoiceTime": 0
+    },
+    "1100378580023791656": {
+      "money": 650,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 650,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750240934789,
+      "lastVoiceTime": 0
+    },
+    "933654444883714058": {
       "money": 5,
       "points": 0,
       "lastDaily": 0,
       "totalEarned": 5,
       "totalSpent": 0,
       "purchaseHistory": [],
-      "joinTime": 1750227602013,
+      "joinTime": 1750242954429,
+      "lastVoiceTime": 0
+    },
+    "1367452415879811132": {
+      "money": 1500,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 1500,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750243183932,
+      "lastVoiceTime": 0
+    },
+    "562944054611017737": {
+      "money": 980,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 980,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750244474803,
+      "lastVoiceTime": 0
+    },
+    "612262898823200770": {
+      "money": 1355,
+      "points": 2,
+      "lastDaily": 0,
+      "totalEarned": 1355,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 珍珠奶茶 (來自 健太)",
+          "price": 0,
+          "time": 1750245762871
+        },
+        {
+          "item": "被請客: 烤布雷 (來自 健太)",
+          "price": 0,
+          "time": 1750246300414
+        }
+      ],
+      "joinTime": 1750245734809,
+      "lastVoiceTime": 0
+    },
+    "540147538003623946": {
+      "money": 710,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 710,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750247294831,
+      "lastVoiceTime": 0
+    },
+    "999684404798558249": {
+      "money": 2010,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 2010,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750247894838,
+      "lastVoiceTime": 0
+    },
+    "625141117863854121": {
+      "money": 2300,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 2300,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750247954828,
+      "lastVoiceTime": 0
+    },
+    "1287434353147908096": {
+      "money": 470,
+      "points": 0,
+      "lastDaily": 1750292980668,
+      "totalEarned": 470,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750248654484,
+      "lastVoiceTime": 0
+    },
+    "1364966981694001242": {
+      "money": 140,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 140,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750248794840,
+      "lastVoiceTime": 0
+    },
+    "871956699626475561": {
+      "money": 350,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 350,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750250294837,
+      "lastVoiceTime": 0
+    },
+    "274245273889406976": {
+      "money": 1410,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 1410,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750250714850,
+      "lastVoiceTime": 0
+    },
+    "483627343076786177": {
+      "money": 1980,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 1980,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750250834845,
+      "lastVoiceTime": 0
+    },
+    "1257192203592404994": {
+      "money": 210,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 210,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750251014853,
+      "lastVoiceTime": 0
+    },
+    "1004009452623646831": {
+      "money": 850,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 850,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750251974850,
+      "lastVoiceTime": 0
+    },
+    "988462974433919047": {
+      "money": 205,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 205,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750252556596,
+      "lastVoiceTime": 0
+    },
+    "473046548549206037": {
+      "money": 10,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 10,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750254786555,
+      "lastVoiceTime": 0
+    },
+    "448859447071342603": {
+      "money": 450,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 450,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750255214873,
+      "lastVoiceTime": 0
+    },
+    "279540711878295553": {
+      "money": 5,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 5,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750255954795,
+      "lastVoiceTime": 0
+    },
+    "391942785357578240": {
+      "money": 980,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 980,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750257254897,
+      "lastVoiceTime": 0
+    },
+    "266932278280585216": {
+      "money": 280,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 280,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750259414899,
+      "lastVoiceTime": 0
+    },
+    "720678090732470352": {
+      "money": 635,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 635,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750260734911,
+      "lastVoiceTime": 0
+    },
+    "450982394502184960": {
+      "money": 1875,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 1875,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750261385924,
+      "lastVoiceTime": 0
+    },
+    "938667592455979020": {
+      "money": 5,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 5,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750267159710,
+      "lastVoiceTime": 0
+    },
+    "529000862563958786": {
+      "money": 20,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 20,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750275674970,
+      "lastVoiceTime": 0
+    },
+    "335977195468095499": {
+      "money": 1020,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 1020,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750293495072,
+      "lastVoiceTime": 0
+    },
+    "1334069885743140897": {
+      "money": 60,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 60,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750301160620,
+      "lastVoiceTime": 0
+    },
+    "1162748700033028106": {
+      "money": 395,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 395,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750304415145,
+      "lastVoiceTime": 0
+    },
+    "749285143042064434": {
+      "money": 185,
+      "points": 1,
+      "lastDaily": 0,
+      "totalEarned": 185,
+      "totalSpent": 0,
+      "purchaseHistory": [
+        {
+          "item": "被請客: 珍珠奶茶 (來自 健太)",
+          "price": 0,
+          "time": 1750308620834
+        }
+      ],
+      "joinTime": 1750307437894,
+      "lastVoiceTime": 0
+    },
+    "1089879169418141707": {
+      "money": 40,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 40,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750310535184,
+      "lastVoiceTime": 0
+    },
+    "1372481498275643442": {
+      "money": 155,
+      "points": 0,
+      "lastDaily": 0,
+      "totalEarned": 155,
+      "totalSpent": 0,
+      "purchaseHistory": [],
+      "joinTime": 1750310895188,
       "lastVoiceTime": 0
     }
   },
@@ -635,7 +1119,7 @@
       "image": "🧇"
     }
   ],
-  "shopAccount": 1140,
+  "shopAccount": 2105,
   "settings": {
     "managerRoleId": "1384346151431438529",
     "menuChannelId": "1383993054070964224",
@@ -697,21 +1181,21 @@
       "description": "隨機獲得50-150元",
       "cost": 12,
       "type": "lucky",
-      "value": [50, 150],
+      "value": [
+        50,
+        150
+      ],
       "emoji": "📦"
     }
   ],
   "dailyStats": {
-    "date": "Wed Jun 18 2025",
-    "sales": 825,
+    "date": "Thu Jun 19 2025",
+    "sales": 575,
     "customers": [
-      "493694033202511883",
       "836447451324874772",
-      "427277356353191937",
-      "832977253696667728",
-      "557437400515608586",
-      "649879233518239769",
-      "571712084459651093"
+      "493694033202511883",
+      "330755940594876429",
+      "749285143042064434"
     ]
   }
 }
