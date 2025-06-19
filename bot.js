@@ -408,6 +408,8 @@ class CoffeeShopManager {
     console.log(`💰 ${userId} 獲得 ${amount} 元 (${reason})`);
   }
 
+  // 同時需要修改 CoffeeShopManager 類，添加處理雙倍集點的邏輯
+  // 在 purchaseItem 方法中添加：
   purchaseItem(userId, itemId) {
     const user = this.initUser(userId);
     const item = this.data.menu.find((i) => i.id === itemId);
@@ -417,7 +419,15 @@ class CoffeeShopManager {
 
     user.money -= item.price;
     user.totalSpent += item.price;
-    user.points += this.data.settings.pointsPerPurchase;
+
+    // 檢查是否有雙倍集點
+    let pointsToAdd = this.data.settings.pointsPerPurchase;
+    if (user.doublePointsNext) {
+      pointsToAdd *= 2;
+      user.doublePointsNext = false; // 使用後清除
+    }
+
+    user.points += pointsToAdd;
     user.purchaseHistory.push({
       item: item.name,
       price: item.price,
@@ -433,6 +443,7 @@ class CoffeeShopManager {
       item: item,
       newBalance: user.money,
       points: user.points,
+      pointsEarned: pointsToAdd, // 新增：返回獲得的集點數
     };
   }
 
@@ -1282,9 +1293,10 @@ async function handleWalletCommand(interaction) {
     !coffeeShop.isManager(interaction.member) &&
     !coffeeShop.isAdmin(interaction.member)
   ) {
-    return await interaction.reply(
-      createEphemeralReply("❌ 只有店長和管理員可以查看其他人的錢包！")
-    );
+    return await interaction.reply({
+      content: "❌ 只有店長和管理員可以查看其他人的錢包！",
+      ephemeral: true,
+    });
   }
 
   const userId = targetUser ? targetUser.id : interaction.user.id;
@@ -1314,8 +1326,10 @@ async function handleWalletCommand(interaction) {
       }
     )
     .setTimestamp();
-
-  await interaction.reply({ embeds: [embed] });
+  await interaction.reply({
+    embeds: [embed],
+    ephemeral: true,
+  });
 }
 
 // 簽到指令
@@ -1393,27 +1407,98 @@ async function handleRewardShopCommand(interaction) {
   await interaction.reply({ embeds: [embed] });
 }
 
-// 集點兌換指令
+// 修复后的集点兑换指令
 async function handleRedeemPointsCommand(interaction) {
-  const result = coffeeShop.redeemPoints(interaction.user.id);
+  const rewardId = interaction.options.getString("獎勵");
+  const userId = interaction.user.id;
 
-  if (!result.success) {
+  const userData = coffeeShop.initUser(userId);
+  const reward = coffeeShop.data.rewardShop.find((r) => r.id === rewardId);
+
+  if (!reward) {
     return await interaction.reply(
-      createEphemeralReply(`❌ ${result.message}`)
+      createEphemeralReply("❌ 找不到該獎勵項目！")
     );
   }
 
+  if (userData.points < reward.cost) {
+    return await interaction.reply(
+      createEphemeralReply(
+        `❌ 集點不足！需要 ${reward.cost} 點，目前有 ${userData.points} 點`
+      )
+    );
+  }
+
+  // 扣除集點
+  userData.points -= reward.cost;
+
+  // 根據獎勵類型給予不同獎勵
+  let rewardResult = "";
+
+  switch (reward.type) {
+    case "money":
+      userData.money += reward.value;
+      userData.totalEarned += reward.value;
+      rewardResult = `獲得 ${reward.value} 元現金！`;
+      break;
+
+    case "item":
+      if (reward.value === "random_drink") {
+        // 隨機給一杯飲料
+        const randomDrink =
+          coffeeShop.data.menu[
+            Math.floor(Math.random() * coffeeShop.data.menu.length)
+          ];
+        if (randomDrink) {
+          userData.purchaseHistory.push({
+            item: `免費飲料券: ${randomDrink.name}`,
+            price: 0,
+            time: Date.now(),
+          });
+          rewardResult = `獲得一杯免費的 ${randomDrink.emoji} ${randomDrink.name}！`;
+        } else {
+          rewardResult = "獲得免費飲料券！";
+        }
+      }
+      break;
+
+    case "buff":
+      if (reward.value === "double_points") {
+        // 設置雙倍集點標記（你可以根據需要實現）
+        userData.doublePointsNext = true;
+        rewardResult = "獲得雙倍集點卡！下次購買將獲得雙倍集點！";
+      }
+      break;
+
+    case "title":
+      // 給予稱號（你可以根據需要實現）
+      userData.title = reward.value;
+      rewardResult = `獲得稱號：${reward.value}！`;
+      break;
+
+    case "lucky":
+      // 幸運寶箱隨機金額
+      const [min, max] = reward.value;
+      const luckyAmount = Math.floor(Math.random() * (max - min + 1)) + min;
+      userData.money += luckyAmount;
+      userData.totalEarned += luckyAmount;
+      rewardResult = `幸運寶箱開出 ${luckyAmount} 元！`;
+      break;
+
+    default:
+      rewardResult = `獲得 ${reward.name}！`;
+  }
+
+  coffeeShop.saveData();
+
   const embed = new EmbedBuilder()
-    .setTitle("🎉 集點兌換成功！")
-    .setDescription(`恭喜你！獲得 ${result.reward} 元獎勵！`)
+    .setTitle("🎉 兌換成功！")
+    .setDescription(`${reward.emoji} **${reward.name}**\n${rewardResult}`)
     .setColor("#00FF00")
     .addFields(
-      { name: "💰 目前金額", value: `${result.newBalance} 元`, inline: true },
-      {
-        name: "⭐ 剩餘集點",
-        value: `${result.remainingPoints} 點`,
-        inline: true,
-      }
+      { name: "💎 消耗集點", value: `${reward.cost} 點`, inline: true },
+      { name: "⭐ 剩餘集點", value: `${userData.points} 點`, inline: true },
+      { name: "💰 目前金額", value: `${userData.money} 元`, inline: true }
     )
     .setTimestamp();
 
